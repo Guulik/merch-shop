@@ -1,20 +1,23 @@
 package app
 
 import (
-	"awesomeProject/configure"
-	"awesomeProject/internal/middleware"
 	"context"
 	"errors"
 	"fmt"
 	"github.com/jmoiron/sqlx"
 	"github.com/labstack/echo/v4"
+	"merch/configure"
+	"merch/internal/api"
+	"merch/internal/middleware"
+	"merch/internal/repository"
+	"merch/internal/service"
 	"net/http"
 )
 
 type App struct {
-	//api     *api.Api
-	//svc     *service.Service
-	//repo *repository.Repo
+	api  *api.Api
+	svc  *service.Service
+	repo *repository.Repo
 	echo *echo.Echo
 	pool *sqlx.DB
 	cfg  *configure.Config
@@ -25,25 +28,25 @@ func New() *App {
 
 	app.cfg = configure.MustLoadConfig()
 	app.echo = echo.New()
-
 	app.pool = configure.NewPostgres(app.cfg)
 
-	//app.svc = service.New(app.storage, app.cache)
-
-	//app.api = api.New(app.svc)
+	app.repo = repository.New(app.pool)
+	app.svc = service.New(app.cfg, app.repo, app.repo, app.repo, app.repo)
+	app.api = api.New(app.svc)
 
 	err := app.cfg.MigrateUp()
 	if err != nil {
 		//TODO: handle error
 	}
 
-	//app.echo.POST("/api/auth", api.AuthHandler)
+	app.echo.POST("/api/auth", app.api.AuthHandler)
 
 	protected := app.echo.Group("/api")
 	protected.Use(middleware.AuthMiddleware)
 
-	//protected.POST("/sendCoin", api.SendCoinHandler)
-	//protected.POST("/createBanner", api.CreateBanner)
+	//protected.POST("/sendCoin", app.api.SendCoinHandler)
+	//protected.POST("/info", app.api.GetInfoHandler)
+	//protected.POST("/buy/:item", app.api.GetInfoHandler)
 
 	return app
 }

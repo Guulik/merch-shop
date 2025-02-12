@@ -1,8 +1,17 @@
 package api
 
-import "awesomeProject/configure"
+import (
+	"merch/internal/service"
+)
 
 type Api struct {
-	//service
-	cfg *configure.Config
+	//log
+
+	service *service.Service
+}
+
+func New(service *service.Service) *Api {
+	return &Api{
+		service: service,
+	}
 }

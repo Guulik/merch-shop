@@ -1,9 +1,9 @@
 package main
 
 import (
-	"awesomeProject/internal/app"
 	"context"
 	"fmt"
+	"merch/internal/app"
 	"os"
 	"os/signal"
 	"syscall"
