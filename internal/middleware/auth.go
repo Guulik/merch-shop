@@ -7,6 +7,14 @@ import (
 	"strings"
 )
 
+const (
+	InvalidTokenFormat = "invalid token format"
+	MissingToken       = "missing token"
+	InvalidToken       = "invalid token"
+	InvalidTokenClaims = "invalid token claims"
+	UserIdNotFound     = "user_id not found in token"
+)
+
 // TODO: передавать по другому надо
 var secretKey = []byte("your_secret_key")
 
@@ -14,11 +22,11 @@ func AuthMiddleware(next echo.HandlerFunc) echo.HandlerFunc {
 	return func(c echo.Context) error {
 		authHeader := c.Request().Header.Get("Authorization")
 		if authHeader == "" {
-			return echo.NewHTTPError(http.StatusUnauthorized, "missing token")
+			return echo.NewHTTPError(http.StatusUnauthorized, MissingToken)
 		}
 		parts := strings.Split(authHeader, " ")
 		if len(parts) != 2 || parts[0] != "Bearer" {
-			return echo.NewHTTPError(http.StatusUnauthorized, "invalid token format")
+			return echo.NewHTTPError(http.StatusUnauthorized, InvalidTokenFormat)
 		}
 		tokenString := parts[1]
 
@@ -26,17 +34,17 @@ func AuthMiddleware(next echo.HandlerFunc) echo.HandlerFunc {
 			return secretKey, nil
 		})
 		if err != nil {
-			return echo.NewHTTPError(http.StatusUnauthorized, "invalid token")
+			return echo.NewHTTPError(http.StatusUnauthorized, InvalidToken)
 		}
 
 		claims, ok := token.Claims.(jwt.MapClaims)
 		if !ok || !token.Valid {
-			return echo.NewHTTPError(http.StatusUnauthorized, "invalid token claims")
+			return echo.NewHTTPError(http.StatusUnauthorized, InvalidTokenClaims)
 		}
 
 		userID, ok := claims["user_id"].(float64)
 		if !ok {
-			return echo.NewHTTPError(http.StatusUnauthorized, "user_id not found in token")
+			return echo.NewHTTPError(http.StatusUnauthorized, UserIdNotFound)
 		}
 
 		c.Set("user_id", int(userID))

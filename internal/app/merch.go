@@ -31,7 +31,7 @@ func New() *App {
 	app.pool = configure.NewPostgres(app.cfg)
 
 	app.repo = repository.New(app.pool)
-	app.svc = service.New(app.cfg, app.repo, app.repo, app.repo, app.repo)
+	app.svc = service.New(app.cfg, app.repo, app.repo, app.repo)
 	app.api = api.New(app.svc)
 
 	err := app.cfg.MigrateUp()
@@ -44,9 +44,9 @@ func New() *App {
 	protected := app.echo.Group("/api")
 	protected.Use(middleware.AuthMiddleware)
 
-	//protected.POST("/sendCoin", app.api.SendCoinHandler)
-	//protected.POST("/info", app.api.GetInfoHandler)
-	//protected.POST("/buy/:item", app.api.GetInfoHandler)
+	protected.GET("/buy/:item", app.api.BuyHandler)
+	protected.POST("/sendCoin", app.api.SendCoinHandler)
+	protected.GET("/info", app.api.InfoHandler)
 
 	return app
 }
@@ -54,7 +54,7 @@ func New() *App {
 func (a *App) Run() error {
 	fmt.Println("server running")
 
-	err := a.echo.Start(":4444")
+	err := a.echo.Start(fmt.Sprintf(":%d", a.cfg.Port))
 	if err != nil {
 		return err
 	}
@@ -69,7 +69,7 @@ func (a *App) MustRun() {
 }
 
 func (a *App) Stop(ctx context.Context) error {
-	fmt.Println("stopping server..." + " op = app.Stop")
+	fmt.Println("stopping server...")
 
 	if err := a.echo.Shutdown(ctx); err != nil {
 		fmt.Println("failed to shutdown server")

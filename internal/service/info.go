@@ -9,7 +9,14 @@ import (
 // В одном запросе получаем сразу и монетки и инвентарь.
 // Во втором запросе все транзакции, относящиеся к данному пользователю, но разбитые на sent и received
 type UserProvider interface {
-	GetCoinsAndInventory(ctx context.Context, userId int) (*int, map[string]int, error)
+	GetCoins(
+		ctx context.Context,
+		userId int,
+	) (int, error)
+	GetCoinsAndInventory(
+		ctx context.Context,
+		userId int,
+	) (*int, map[string]int, error)
 	GetCoinHistory(
 		ctx context.Context,
 		userId int,
@@ -33,8 +40,10 @@ func (s *Service) GetUserInfo(ctx context.Context, userId int) (*model.UserInfo,
 	if coinsPtr != nil {
 		coins = *coinsPtr
 	}
-	//TODO: convert map[string]int to []Item
 	inventory, err = convertInventory(inventoryMap)
+	if err != nil {
+		//TODO: log and return 500
+	}
 
 	coinHistory, err = s.userProvider.GetCoinHistory(ctx, userId)
 	if err != nil {
@@ -51,6 +60,12 @@ func (s *Service) GetUserInfo(ctx context.Context, userId int) (*model.UserInfo,
 }
 
 func convertInventory(inventoryMap map[string]int) ([]model.Item, error) {
-	//TODO: implement me
-	return nil, nil
+	inventory := make([]model.Item, 0, len(inventoryMap))
+	for item, quantity := range inventoryMap {
+		inventory = append(inventory, model.Item{
+			Type:     item,
+			Quantity: quantity,
+		})
+	}
+	return inventory, nil
 }

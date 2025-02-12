@@ -2,44 +2,66 @@ package service
 
 import (
 	"context"
+	"database/sql"
+	"errors"
 	"github.com/golang-jwt/jwt/v5"
 	"merch/internal/domain/model"
+	"merch/internal/lib/hasher"
 	"time"
 )
 
 type Authorizer interface {
-	GetUserByUsername(
+	CheckUserByUsername(
 		ctx context.Context,
 		username string,
-	) (model.UserAuth, error)
+	) (*model.UserAuth, error)
 	SaveUser(
 		ctx context.Context,
 		username string,
 		password string,
-	) error
+	) (int, error)
 }
 
 func (s *Service) Authorize(ctx context.Context, username string, password string) (string, error) {
 
 	var (
+		hashedPassword string
+		user           *model.UserAuth
+		newUserId      int
+
 		token string
-		user  model.UserAuth
 		err   error
 	)
-	user, err = s.authorizer.GetUserByUsername(ctx, username)
+	hashedPassword, err = hasher.HashPassword(password)
 	if err != nil {
-		//TODO: check if error "user not found", create new User, save password as hash
+		//TODO: log and return 500
 	}
-	//TODO: check password
-	/*	if err = utils.ComparePassword(password, user.PasswordHash); err != nil {
-		//TODO: return 401
-	}*/
+
+	user, err = s.authorizer.CheckUserByUsername(ctx, username)
+	if err != nil {
+		if errors.Is(err, sql.ErrNoRows) {
+			newUserId, err = s.authorizer.SaveUser(ctx, username, hashedPassword)
+			if err != nil {
+				//TODO: log and return 500
+			}
+		} else {
+			//TODO: log and return 500
+		}
+		token, err = s.generateJWT(newUserId)
+		if err != nil {
+			//TODO: log and return 500
+		}
+		return token, nil
+	}
+
+	if err = hasher.ComparePassword(hashedPassword, user.Password); err != nil {
+		//TODO: log and return 401
+	}
 
 	token, err = s.generateJWT(user.Id)
 	if err != nil {
-		//TODO: return 500
+		//TODO: log and return 500
 	}
-
 	return token, nil
 }
 func (s *Service) generateJWT(userID int) (string, error) {

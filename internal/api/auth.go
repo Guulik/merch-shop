@@ -27,7 +27,11 @@ func (a *Api) AuthHandler(e echo.Context) error {
 		// always returns 400
 		return err
 	}
+
 	token, err = a.service.Authorize(ctx, req.Username, req.Password)
+	if err != nil {
+		//TODO: return wrapped error
+	}
 
 	return e.JSON(http.StatusOK, AuthResponse{Token: token})
 }

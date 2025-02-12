@@ -1,11 +1,13 @@
 env: "stage"
-port: 4444
+
+port: 8080
 timeout: 1m
+tokenTTL: 1h
 postgres:
   host: "postgres"
   SQLPort: 5432
   user: "postgres"
   password: "password"
-  DBName: "banner_test"
+  DBName: "merch"
   sslMode: "disable"
   driver: "pgx"

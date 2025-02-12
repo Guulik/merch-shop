@@ -5,6 +5,26 @@ import (
 	"merch/internal/domain/model"
 )
 
+func (r *Repo) GetCoins(ctx context.Context, userId int) (int, error) {
+	var (
+		query = `
+    SELECT coins
+    FROM users
+    WHERE id = $1
+`
+		values = []any{userId}
+
+		coins int
+	)
+
+	err := r.dbPool.Get(&coins, query, values...)
+	if err != nil {
+		//TODO: handle error
+	}
+
+	return coins, nil
+}
+
 func (r *Repo) GetCoinsAndInventory(ctx context.Context, userId int) (*int, map[string]int, error) {
 
 	var (

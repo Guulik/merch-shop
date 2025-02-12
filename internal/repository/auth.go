@@ -5,15 +5,40 @@ import (
 	"merch/internal/domain/model"
 )
 
-func (r *Repo) GetUserByUsername(ctx context.Context, username string) (model.UserAuth, error) {
-	//TODO implement me
+func (r *Repo) CheckUserByUsername(ctx context.Context, username string) (*model.UserAuth, error) {
 	var (
-		user model.UserAuth
+		query = `
+		SELECT id
+		FROM users 
+		WHERE username = $1;
+`
+		values = []any{username}
+		user   *model.UserAuth
 	)
+	err := r.dbPool.Get(user, query, values...)
+	if err != nil {
+		//TODO: log error
+		return nil, err
+	}
 	return user, nil
 }
 
-func (r *Repo) SaveUser(ctx context.Context, username string, password string) error {
-	//TODO implement me
-	return nil
+func (r *Repo) SaveUser(ctx context.Context, username string, password string) (int, error) {
+
+	var (
+		query = `
+		INSERT INTO users (username, password_hash) 
+		VALUES ($1, $2) 
+		RETURNING id;
+	`
+		values = []any{username, password}
+
+		userId int
+	)
+	err := r.dbPool.QueryRow(query, values...).Scan(&userId)
+	if err != nil {
+		return 0, err
+	}
+
+	return userId, nil
 }
