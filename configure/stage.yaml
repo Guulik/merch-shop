@@ -1,0 +1,11 @@
+env: "stage"
+port: 4444
+timeout: 1m
+postgres:
+  host: "postgres"
+  SQLPort: 5432
+  user: "postgres"
+  password: "password"
+  DBName: "banner_test"
+  sslMode: "disable"
+  driver: "pgx"

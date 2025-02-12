@@ -1,0 +1,13 @@
+env: "local"
+
+port: 8080
+timeout: 1m
+tokenTTL: 1h
+postgres:
+  host: "localhost"
+  SQLPort: 5432
+  user: "postgres"
+  password: "password"
+  DBName: "merch"
+  sslMode: "disable"
+  driver: "pgx"
