@@ -2,10 +2,12 @@ package service
 
 import (
 	"context"
-	"database/sql"
 	"errors"
+	"github.com/jackc/pgx/v4"
+	"github.com/labstack/echo/v4"
 	"merch/internal/domain/consts"
 	"merch/internal/lib/logger"
+	"net/http"
 )
 
 type CoinTransfer interface {
@@ -32,10 +34,10 @@ func (s *Service) SendCoins(ctx context.Context, fromUserId int, toUserId int, c
 
 	currentCoins, err = s.userProvider.GetCoins(ctx, fromUserId)
 	if err != nil {
-		if errors.Is(err, sql.ErrNoRows) {
-			//TODO: return 400
+		if errors.Is(err, pgx.ErrNoRows) {
+			return echo.NewHTTPError(http.StatusBadRequest, consts.UserNotFound)
 		}
-		//TODO: return 500
+		return echo.NewHTTPError(http.StatusInternalServerError, consts.InternalServerError)
 	}
 	logger.WithLogCoinBalance(ctx, currentCoins)
 	if currentCoins < coinAmount {
@@ -45,10 +47,10 @@ func (s *Service) SendCoins(ctx context.Context, fromUserId int, toUserId int, c
 
 	err = s.coinTransfer.TransferCoins(ctx, fromUserId, toUserId, coinAmount)
 	if err != nil {
-		if errors.Is(err, sql.ErrNoRows) {
-			//TODO: return 400
+		if errors.Is(err, pgx.ErrNoRows) {
+			return echo.NewHTTPError(http.StatusBadRequest, consts.UserNotFound)
 		}
-		//TODO: return 500
+		return echo.NewHTTPError(http.StatusInternalServerError, consts.InternalServerError)
 	}
 
 	return nil

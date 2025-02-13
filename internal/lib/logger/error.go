@@ -14,6 +14,10 @@ func (e *errorWithLogCtx) Error() string {
 	return e.next.Error()
 }
 
+func (e *errorWithLogCtx) Unwrap() error {
+	return e.next
+}
+
 func WrapError(ctx context.Context, err error) error {
 	c := logCtx{}
 	if x, ok := ctx.Value(key).(logCtx); ok {

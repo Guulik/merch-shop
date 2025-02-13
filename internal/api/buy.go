@@ -7,6 +7,7 @@ import (
 	"merch/internal/domain"
 	"merch/internal/domain/consts"
 	"merch/internal/lib/logger"
+	"merch/internal/lib/wrapper"
 	"net/http"
 )
 
@@ -39,7 +40,12 @@ func (a *Api) BuyHandler(e echo.Context) error {
 	err = a.service.BuyItem(ctx, tokenUserId, req.Item)
 	if err != nil {
 		slog.ErrorContext(logger.ErrorCtx(ctx, err), "Error:"+err.Error())
-		//TODO: return wrapped error
+		var httpErr *wrapper.HTTPError
+		if errors.As(err, &httpErr) {
+			slog.ErrorContext(logger.ErrorCtx(ctx, httpErr.Err), "Error: "+httpErr.Err.Error())
+			return echo.NewHTTPError(httpErr.Status, httpErr.Msg)
+		}
+		slog.ErrorContext(logger.ErrorCtx(ctx, err), "Error: "+err.Error())
 	}
 
 	return e.NoContent(http.StatusOK)

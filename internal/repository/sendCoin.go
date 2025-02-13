@@ -3,6 +3,7 @@ package repository
 import (
 	"context"
 	"database/sql"
+	"github.com/jackc/pgx/v4"
 	"merch/internal/lib/logger"
 )
 
@@ -31,42 +32,42 @@ func (r *Repo) TransferCoins(ctx context.Context, fromUserId int, toUserId int, 
 	)
 
 	//TODO: think about isolation level
-	txOptions := sql.TxOptions{Isolation: sql.LevelSerializable}
-	tx, err := r.dbPool.BeginTx(ctx, &txOptions)
+	txOptions := pgx.TxOptions{IsoLevel: pgx.Serializable}
+	tx, err := r.dbPool.BeginTx(ctx, txOptions)
 	if err != nil {
 		return logger.WrapError(ctx, err)
 	}
 
 	defer func() {
 		if err != nil {
-			tx.Rollback()
+			tx.Rollback(ctx)
 		}
 	}()
 
-	res, err := tx.Exec(subtractQuery, subtractQueryValues...)
+	res, err := tx.Exec(ctx, subtractQuery, subtractQueryValues...)
 	if err != nil {
 		return logger.WrapError(ctx, err)
 	}
-	if n, _ := res.RowsAffected(); n == 0 {
+	if n := res.RowsAffected(); n == 0 {
 		err = sql.ErrNoRows
 		return logger.WrapError(ctx, err)
 	}
 
-	res, err = tx.Exec(addQuery, addQueryValues...)
+	res, err = tx.Exec(ctx, addQuery, addQueryValues...)
 	if err != nil {
 		return logger.WrapError(ctx, err)
 	}
-	if n, _ := res.RowsAffected(); n == 0 {
+	if n := res.RowsAffected(); n == 0 {
 		err = sql.ErrNoRows
 		return logger.WrapError(ctx, err)
 	}
 
-	_, err = tx.Exec(insertTransactionQuery, transactionQueryValues...)
+	_, err = tx.Exec(ctx, insertTransactionQuery, transactionQueryValues...)
 	if err != nil {
 		return logger.WrapError(ctx, err)
 	}
 
-	err = tx.Commit()
+	err = tx.Commit(ctx)
 	if err != nil {
 		return logger.WrapError(ctx, err)
 	}

@@ -2,11 +2,13 @@ package service
 
 import (
 	"context"
-	"database/sql"
 	"errors"
+	"github.com/jackc/pgx/v4"
+	"github.com/labstack/echo/v4"
 	"merch/internal/domain"
 	"merch/internal/domain/consts"
 	"merch/internal/lib/logger"
+	"net/http"
 )
 
 func (s *Service) BuyItem(ctx context.Context, userId int, item string) error {
@@ -21,10 +23,10 @@ func (s *Service) BuyItem(ctx context.Context, userId int, item string) error {
 
 	currentCoins, err = s.userProvider.GetCoins(ctx, userId)
 	if err != nil {
-		if errors.Is(err, sql.ErrNoRows) {
-			//TODO: return 400
+		if errors.Is(err, pgx.ErrNoRows) {
+			return echo.NewHTTPError(http.StatusBadRequest, consts.UserNotFound)
 		}
-		//TODO: return 500
+		return echo.NewHTTPError(http.StatusInternalServerError, consts.InternalServerError)
 	}
 	logger.WithLogCoinBalance(ctx, currentCoins)
 	if currentCoins < itemCost {
@@ -34,11 +36,11 @@ func (s *Service) BuyItem(ctx context.Context, userId int, item string) error {
 
 	err = s.coinTransfer.PayForItem(ctx, userId, item, itemCost)
 	if err != nil {
-		//Возможно избыточно, ведь мы проверили пользователя в GetCoins, но я решил оставить. Это небольшая нагрузка
-		if errors.Is(err, sql.ErrNoRows) {
-			//TODO: return 400
+		//Возможно, это избыточно, ведь мы проверили пользователя в GetCoins, но накладных расходов почти не создает.
+		if errors.Is(err, pgx.ErrNoRows) {
+			return echo.NewHTTPError(http.StatusBadRequest, consts.UserNotFound)
 		}
-		//TODO: return 500
+		return echo.NewHTTPError(http.StatusInternalServerError, consts.InternalServerError)
 	}
 
 	return nil

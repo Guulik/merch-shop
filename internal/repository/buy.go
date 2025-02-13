@@ -3,6 +3,7 @@ package repository
 import (
 	"context"
 	"database/sql"
+	"github.com/jackc/pgx/v4"
 	"merch/internal/lib/logger"
 )
 
@@ -26,36 +27,37 @@ func (r *Repo) PayForItem(ctx context.Context, userId int, item string, itemCost
 		itemQueryValues = []any{userId, item, 1}
 	)
 
-	//TODO: replace to BeginTx. Provide context and choose iso level
-	tx, err := r.dbPool.Begin()
+	//TODO: choose iso level
+	txOptions := pgx.TxOptions{IsoLevel: pgx.Serializable}
+	tx, err := r.dbPool.BeginTx(ctx, txOptions)
 	if err != nil {
 		return logger.WrapError(ctx, err)
 	}
 	defer func() {
 		if err != nil {
-			tx.Rollback()
+			tx.Rollback(ctx)
 		}
 	}()
 
-	res, err := tx.ExecContext(ctx, coinQuery, coinQueryValues...)
+	res, err := tx.Exec(ctx, coinQuery, coinQueryValues...)
 	if err != nil {
 		return logger.WrapError(ctx, err)
 	}
-	if n, _ := res.RowsAffected(); n == 0 {
+	if n := res.RowsAffected(); n == 0 {
 		err = sql.ErrNoRows
 		return logger.WrapError(ctx, err)
 	}
 
-	res, err = tx.ExecContext(ctx, itemQuery, itemQueryValues...)
+	res, err = tx.Exec(ctx, itemQuery, itemQueryValues...)
 	if err != nil {
 		return logger.WrapError(ctx, err)
 	}
-	if n, _ := res.RowsAffected(); n == 0 {
+	if n := res.RowsAffected(); n == 0 {
 		err = sql.ErrNoRows
 		return logger.WrapError(ctx, err)
 	}
 
-	err = tx.Commit()
+	err = tx.Commit(ctx)
 	if err != nil {
 		return logger.WrapError(ctx, err)
 	}

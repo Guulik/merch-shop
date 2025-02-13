@@ -12,10 +12,11 @@ linters:
     - ineffassign
     - interfacebloat
     - nakedret
+    - nestif
   disable:
     - funlen
     - godox
-    - nestif
+    - forcetypeassert
   presets:
     - bugs
     - comment

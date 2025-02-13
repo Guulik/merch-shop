@@ -19,7 +19,7 @@ func (r *Repo) GetCoins(ctx context.Context, userId int) (int, error) {
 		coins int
 	)
 
-	err := r.dbPool.Get(&coins, query, values...)
+	err := r.dbPool.QueryRow(ctx, query, values...).Scan(&coins)
 	if err != nil {
 		return -1, logger.WrapError(ctx, err)
 	}
@@ -42,7 +42,7 @@ func (r *Repo) GetCoinsAndInventory(ctx context.Context, userId int) (*int, map[
 		inventory map[string]int
 	)
 
-	rows, err := r.dbPool.Query(query, values...)
+	rows, err := r.dbPool.Query(ctx, query, values...)
 	if err != nil {
 		return nil, nil, logger.WrapError(ctx, err)
 	}
@@ -88,7 +88,31 @@ func (r *Repo) GetCoinHistory(ctx context.Context, userId int) (model.CoinHistor
 		received    []model.Received
 		sent        []model.Sent
 	)
-	err := r.dbPool.Get(&transactions, query, values...)
+
+	rows, err := r.dbPool.Query(ctx, query, values...)
+	if err != nil {
+		return model.CoinHistory{}, logger.WrapError(ctx, err)
+	}
+	defer rows.Close()
+
+	for rows.Next() {
+		var utx model.Transaction
+		if err = rows.Scan(
+			&utx.FromUserId,
+			&utx.FromUsername,
+			&utx.ToUserId,
+			&utx.ToUsername,
+			&utx.Amount,
+		); err != nil {
+			return model.CoinHistory{}, logger.WrapError(ctx, err)
+		}
+		transactions = append(transactions, utx)
+	}
+
+	if err = rows.Err(); err != nil {
+		return model.CoinHistory{}, logger.WrapError(ctx, err)
+	}
+
 	if err != nil {
 		return model.CoinHistory{}, logger.WrapError(ctx, err)
 	}

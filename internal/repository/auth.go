@@ -10,18 +10,19 @@ func (r *Repo) CheckUserByUsername(ctx context.Context, username string) (*model
 	//TODO: wrap sql with squirrel
 	var (
 		query = `
-		SELECT id
+		SELECT id, username, password_hash
 		FROM users 
 		WHERE username = $1;
 `
 		values = []any{username}
-		user   *model.UserAuth
+		user   model.UserAuth
 	)
-	err := r.dbPool.Get(user, query, values...)
+	err := r.dbPool.QueryRow(ctx, query, values...).Scan(&user)
+
 	if err != nil {
 		return nil, logger.WrapError(ctx, err)
 	}
-	return user, nil
+	return &user, nil
 }
 
 func (r *Repo) SaveUser(ctx context.Context, username string, password string) (int, error) {
@@ -36,7 +37,7 @@ func (r *Repo) SaveUser(ctx context.Context, username string, password string) (
 
 		userId int
 	)
-	err := r.dbPool.QueryRow(query, values...).Scan(&userId)
+	err := r.dbPool.QueryRow(ctx, query, values...).Scan(&userId)
 	if err != nil {
 		return 0, logger.WrapError(ctx, err)
 	}

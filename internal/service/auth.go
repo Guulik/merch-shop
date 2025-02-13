@@ -2,12 +2,16 @@ package service
 
 import (
 	"context"
-	"database/sql"
 	"errors"
 	"github.com/golang-jwt/jwt/v5"
+	"github.com/jackc/pgx/v4"
+	"log/slog"
+	"merch/internal/domain/consts"
 	"merch/internal/domain/model"
 	"merch/internal/lib/hasher"
 	"merch/internal/lib/logger"
+	"merch/internal/lib/wrapper"
+	"net/http"
 	"time"
 )
 
@@ -40,13 +44,14 @@ func (s *Service) Authorize(ctx context.Context, username string, password strin
 
 	user, err = s.authorizer.CheckUserByUsername(ctx, username)
 	if err != nil {
-		if errors.Is(err, sql.ErrNoRows) {
+		if errors.Is(err, pgx.ErrNoRows) {
+			slog.Debug("new user")
 			newUserId, err = s.authorizer.SaveUser(ctx, username, hashedPassword)
 			if err != nil {
-				//TODO: log and return 500
+				return "", wrapper.WrapHTTPError(err, http.StatusInternalServerError, consts.InternalServerError)
 			}
 		} else {
-			//TODO: log and return 500
+			return "", wrapper.WrapHTTPError(err, http.StatusInternalServerError, consts.InternalServerError)
 		}
 		token, err = s.generateJWT(newUserId)
 		if err != nil {
@@ -56,7 +61,7 @@ func (s *Service) Authorize(ctx context.Context, username string, password strin
 	}
 
 	if err = hasher.ComparePassword(hashedPassword, user.Password); err != nil {
-		//TODO: log and return 401
+		return "", wrapper.WrapHTTPError(err, http.StatusUnauthorized, consts.WrongPassword)
 	}
 
 	token, err = s.generateJWT(user.Id)
@@ -65,6 +70,7 @@ func (s *Service) Authorize(ctx context.Context, username string, password strin
 	}
 	return token, nil
 }
+
 func (s *Service) generateJWT(userID int) (string, error) {
 	claims := jwt.MapClaims{
 		"user_id": userID,

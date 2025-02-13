@@ -2,10 +2,13 @@ package service
 
 import (
 	"context"
-	"database/sql"
 	"errors"
+	"github.com/jackc/pgx/v4"
+	"github.com/labstack/echo/v4"
+	"merch/internal/domain/consts"
 	"merch/internal/domain/model"
 	"merch/internal/lib/logger"
+	"net/http"
 )
 
 type UserProvider interface {
@@ -38,10 +41,10 @@ func (s *Service) GetUserInfo(ctx context.Context, userId int) (*model.UserInfo,
 
 	coinsPtr, inventoryMap, err = s.userProvider.GetCoinsAndInventory(ctx, userId)
 	if err != nil {
-		if errors.Is(err, sql.ErrNoRows) {
-			//TODO: return 400
+		if errors.Is(err, pgx.ErrNoRows) {
+			return &model.UserInfo{}, echo.NewHTTPError(http.StatusBadRequest, consts.UserNotFound)
 		}
-		//TODO: return 500
+		return &model.UserInfo{}, echo.NewHTTPError(http.StatusInternalServerError, consts.InternalServerError)
 	}
 	if coinsPtr != nil {
 		coins = *coinsPtr
@@ -52,10 +55,10 @@ func (s *Service) GetUserInfo(ctx context.Context, userId int) (*model.UserInfo,
 
 	coinHistory, err = s.userProvider.GetCoinHistory(ctx, userId)
 	if err != nil {
-		if errors.Is(err, sql.ErrNoRows) {
-			//TODO: return 400
+		if errors.Is(err, pgx.ErrNoRows) {
+			return &model.UserInfo{}, echo.NewHTTPError(http.StatusBadRequest, consts.UserNotFound)
 		}
-		//TODO: return 500
+		return &model.UserInfo{}, echo.NewHTTPError(http.StatusInternalServerError, consts.InternalServerError)
 	}
 
 	userInfo := &model.UserInfo{

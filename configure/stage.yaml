@@ -10,4 +10,3 @@ postgres:
   password: "password"
   DBName: "merch"
   sslMode: "disable"
-  driver: "pgx"

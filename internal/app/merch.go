@@ -4,8 +4,11 @@ import (
 	"context"
 	"errors"
 	"fmt"
-	"github.com/jmoiron/sqlx"
+	"github.com/golang-migrate/migrate/v4"
+	"github.com/jackc/pgx/v4/pgxpool"
 	"github.com/labstack/echo/v4"
+	"log"
+	"log/slog"
 	"merch/configure"
 	"merch/internal/api"
 	"merch/internal/lib/logger"
@@ -20,25 +23,25 @@ type App struct {
 	svc  *service.Service
 	repo *repository.Repo
 	echo *echo.Echo
-	pool *sqlx.DB
+	pool *pgxpool.Pool
 	cfg  *configure.Config
 }
 
-func New() *App {
+func New(ctx context.Context) *App {
 	app := &App{}
 
 	app.cfg = configure.MustLoadConfig()
 	logger.InitLogger(app.cfg.Env)
 	app.echo = echo.New()
-	app.pool = configure.NewPostgres(app.cfg)
+	app.pool = configure.NewPostgres(ctx, app.cfg)
 
 	app.repo = repository.New(app.pool)
 	app.svc = service.New(app.cfg, app.repo, app.repo, app.repo)
 	app.api = api.New(app.svc)
 
 	err := app.cfg.MigrateUp()
-	if err != nil {
-		//TODO: handle error
+	if err != nil && !errors.Is(err, migrate.ErrNoChange) {
+		log.Fatal("failed to migrate: " + err.Error())
 	}
 
 	app.echo.POST("/api/auth", app.api.AuthHandler)
@@ -54,7 +57,7 @@ func New() *App {
 }
 
 func (a *App) Run() error {
-	fmt.Println("server running")
+	slog.Info("server running")
 
 	err := a.echo.Start(fmt.Sprintf(":%d", a.cfg.Port))
 	if err != nil {
@@ -66,20 +69,18 @@ func (a *App) Run() error {
 
 func (a *App) MustRun() {
 	if err := a.Run(); err != nil && !errors.Is(err, http.ErrServerClosed) {
-		panic(err)
+		log.Fatal(err)
 	}
 }
 
 func (a *App) Stop(ctx context.Context) error {
-	fmt.Println("stopping server...")
+	slog.Info("stopping server...")
 
 	if err := a.echo.Shutdown(ctx); err != nil {
-		fmt.Println("failed to shutdown server")
+		slog.Error("failed to shutdown server")
 		return err
 	}
 
-	if err := a.pool.Close(); err != nil {
-		fmt.Println("failed to close connection")
-	}
+	a.pool.Close()
 	return nil
 }

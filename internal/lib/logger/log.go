@@ -44,10 +44,10 @@ func (h *HandlerMiddleware) Handle(ctx context.Context, rec slog.Record) error {
 		if c.ToUser != 0 {
 			rec.Add("to_user", c.ToUser)
 		}
-		if c.CoinBalance > -1 {
+		if c.CoinBalance > 0 {
 			rec.Add("coin_balance", c.CoinBalance)
 		}
-		if c.SendAmount > -1 {
+		if c.SendAmount > 0 {
 			rec.Add("send_amount", c.SendAmount)
 		}
 		if c.Item != "" {

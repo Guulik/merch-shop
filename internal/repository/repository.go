@@ -1,14 +1,14 @@
 package repository
 
 import (
-	"github.com/jmoiron/sqlx"
+	"github.com/jackc/pgx/v4/pgxpool"
 )
 
 type Repo struct {
-	dbPool *sqlx.DB
+	dbPool *pgxpool.Pool
 }
 
-func New(pool *sqlx.DB) *Repo {
+func New(pool *pgxpool.Pool) *Repo {
 	return &Repo{
 		dbPool: pool,
 	}

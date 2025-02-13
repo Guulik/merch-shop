@@ -22,7 +22,6 @@ type Postgres struct {
 	Password string `yaml:"password"`
 	DBName   string `yaml:"DBName"`
 	SslMode  string `yaml:"sslMode"`
-	Driver   string `yaml:"driver"`
 }
 
 func MustLoadConfig() *Config {

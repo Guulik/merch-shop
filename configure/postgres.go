@@ -1,17 +1,22 @@
 package configure
 
 import (
+	"context"
 	"fmt"
 	"github.com/golang-migrate/migrate/v4"
 	_ "github.com/golang-migrate/migrate/v4/database/postgres"
 	_ "github.com/golang-migrate/migrate/v4/source/file"
-	"github.com/jmoiron/sqlx"
+	"github.com/jackc/pgx/v4/pgxpool"
+	"log/slog"
 	"net/url"
 )
 
-func NewPostgres(c *Config) *sqlx.DB {
-	db := sqlx.MustConnect(c.Postgres.Driver, c.connectionString())
-	return db
+func NewPostgres(ctx context.Context, cfg *Config) *pgxpool.Pool {
+	pool, err := pgxpool.Connect(ctx, cfg.connectionString())
+	if err != nil {
+		panic("no connection to database")
+	}
+	return pool
 }
 
 func (c *Config) MigrateUp(url ...string) error {
@@ -21,7 +26,7 @@ func (c *Config) MigrateUp(url ...string) error {
 	} else {
 		sourceURL = url[0]
 	}
-	fmt.Println(c.connectionString())
+	slog.Info(c.connectionString())
 	m, err := migrate.New(sourceURL, c.connectionString())
 	if err != nil {
 		return err

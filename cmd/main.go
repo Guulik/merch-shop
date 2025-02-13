@@ -3,6 +3,7 @@ package main
 import (
 	"context"
 	"fmt"
+	"log/slog"
 	"merch/internal/app"
 	"os"
 	"os/signal"
@@ -10,9 +11,9 @@ import (
 )
 
 func main() {
-	a := app.New()
-
 	ctx := context.Background()
+
+	a := app.New(ctx)
 
 	go func() {
 		a.MustRun()
@@ -26,5 +27,5 @@ func main() {
 		fmt.Println(fmt.Errorf("failed to gracefully stop app: err=%s", err.Error()))
 	}
 
-	fmt.Println("Gracefully stopped")
+	slog.Info("Gracefully stopped")
 }
