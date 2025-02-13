@@ -12,7 +12,7 @@ import (
 )
 
 type BuyRequest struct {
-	Item string `query:"item"`
+	Item string `param:"item"`
 }
 
 func (a *Api) BuyHandler(e echo.Context) error {
@@ -30,6 +30,7 @@ func (a *Api) BuyHandler(e echo.Context) error {
 		// always returns wrapped 400
 		return err
 	}
+	slog.Debug("item: " + req.Item)
 
 	err = validateItem(req.Item)
 	if err != nil {

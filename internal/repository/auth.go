@@ -2,27 +2,26 @@ package repository
 
 import (
 	"context"
-	"merch/internal/domain/model"
 	"merch/internal/lib/logger"
 )
 
-func (r *Repo) CheckUserByUsername(ctx context.Context, username string) (*model.UserAuth, error) {
+func (r *Repo) CheckUserByUsername(ctx context.Context, username string) (int, error) {
 	//TODO: wrap sql with squirrel
 	var (
 		query = `
-		SELECT id, username, password_hash
+		SELECT id
 		FROM users 
 		WHERE username = $1;
 `
 		values = []any{username}
-		user   model.UserAuth
+		userId int
 	)
-	err := r.dbPool.QueryRow(ctx, query, values...).Scan(&user)
+	err := r.dbPool.QueryRow(ctx, query, values...).Scan(&userId)
 
 	if err != nil {
-		return nil, logger.WrapError(ctx, err)
+		return -1, logger.WrapError(ctx, err)
 	}
-	return &user, nil
+	return userId, nil
 }
 
 func (r *Repo) SaveUser(ctx context.Context, username string, password string) (int, error) {

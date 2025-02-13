@@ -5,7 +5,7 @@ import "context"
 type logCtx struct {
 	UserID      int
 	Username    string
-	ToUser      int
+	ToUser      string
 	SendAmount  int
 	CoinBalance int
 	Item        string
@@ -31,7 +31,7 @@ func WithLogUsername(ctx context.Context, username string) context.Context {
 	return context.WithValue(ctx, key, logCtx{Username: username})
 }
 
-func WithLogToUser(ctx context.Context, toUser int) context.Context {
+func WithLogToUser(ctx context.Context, toUser string) context.Context {
 	if c, ok := ctx.Value(key).(logCtx); ok {
 		c.ToUser = toUser
 		return context.WithValue(ctx, key, c)

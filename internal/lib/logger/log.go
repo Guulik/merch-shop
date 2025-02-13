@@ -41,7 +41,7 @@ func (h *HandlerMiddleware) Handle(ctx context.Context, rec slog.Record) error {
 		if c.UserID != 0 {
 			rec.Add("userId", c.UserID)
 		}
-		if c.ToUser != 0 {
+		if c.ToUser != "" {
 			rec.Add("to_user", c.ToUser)
 		}
 		if c.CoinBalance > 0 {

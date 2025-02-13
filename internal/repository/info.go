@@ -2,6 +2,7 @@ package repository
 
 import (
 	"context"
+	"log/slog"
 	"merch/internal/domain/model"
 	"merch/internal/lib/logger"
 )
@@ -39,7 +40,7 @@ func (r *Repo) GetCoinsAndInventory(ctx context.Context, userId int) (*int, map[
 		values = []any{userId}
 
 		coins     int
-		inventory map[string]int
+		inventory = make(map[string]int)
 	)
 
 	rows, err := r.dbPool.Query(ctx, query, values...)
@@ -61,6 +62,7 @@ func (r *Repo) GetCoinsAndInventory(ctx context.Context, userId int) (*int, map[
 		}
 	}
 
+	slog.DebugContext(logger.ErrorCtx(ctx, err), "coins from db", slog.Any("CoinsPtr", coins))
 	return &coins, inventory, nil
 }
 

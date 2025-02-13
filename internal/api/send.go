@@ -10,8 +10,8 @@ import (
 )
 
 type SendCoinRequest struct {
-	ToUser int `json:"toUser"`
-	Amount int `json:"amount"`
+	ToUsername string `json:"toUser"`
+	Amount     int    `json:"amount"`
 }
 
 func (a *Api) SendCoinHandler(e echo.Context) error {
@@ -28,13 +28,14 @@ func (a *Api) SendCoinHandler(e echo.Context) error {
 		// always returns wrapped 400
 		return err
 	}
-	logger.WithLogToUser(ctx, req.ToUser)
+	logger.WithLogToUser(ctx, req.ToUsername)
 	logger.WithLogSendAmount(ctx, req.Amount)
 
-	err = a.service.SendCoins(ctx, tokenUserId, req.ToUser, req.Amount)
+	err = a.service.SendCoins(ctx, tokenUserId, req.ToUsername, req.Amount)
 	if err != nil {
 		var httpErr *wrapper.HTTPError
 		if errors.As(err, &httpErr) {
+			slog.DebugContext(ctx, "прошёл ассерт", slog.Any("ерор:", err))
 			slog.ErrorContext(logger.ErrorCtx(ctx, httpErr.Err), "Error: "+httpErr.Err.Error())
 			return echo.NewHTTPError(httpErr.Status, httpErr.Msg)
 		}

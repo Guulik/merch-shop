@@ -4,10 +4,10 @@ import (
 	"context"
 	"errors"
 	"github.com/jackc/pgx/v4"
-	"github.com/labstack/echo/v4"
 	"merch/internal/domain"
 	"merch/internal/domain/consts"
 	"merch/internal/lib/logger"
+	"merch/internal/lib/wrapper"
 	"net/http"
 )
 
@@ -24,9 +24,9 @@ func (s *Service) BuyItem(ctx context.Context, userId int, item string) error {
 	currentCoins, err = s.userProvider.GetCoins(ctx, userId)
 	if err != nil {
 		if errors.Is(err, pgx.ErrNoRows) {
-			return echo.NewHTTPError(http.StatusBadRequest, consts.UserNotFound)
+			return wrapper.WrapHTTPError(err, http.StatusBadRequest, consts.UserNotFound)
 		}
-		return echo.NewHTTPError(http.StatusInternalServerError, consts.InternalServerError)
+		return wrapper.WrapHTTPError(err, http.StatusInternalServerError, consts.InternalServerError)
 	}
 	logger.WithLogCoinBalance(ctx, currentCoins)
 	if currentCoins < itemCost {
@@ -38,9 +38,9 @@ func (s *Service) BuyItem(ctx context.Context, userId int, item string) error {
 	if err != nil {
 		//Возможно, это избыточно, ведь мы проверили пользователя в GetCoins, но накладных расходов почти не создает.
 		if errors.Is(err, pgx.ErrNoRows) {
-			return echo.NewHTTPError(http.StatusBadRequest, consts.UserNotFound)
+			return wrapper.WrapHTTPError(err, http.StatusBadRequest, consts.UserNotFound)
 		}
-		return echo.NewHTTPError(http.StatusInternalServerError, consts.InternalServerError)
+		return wrapper.WrapHTTPError(err, http.StatusInternalServerError, consts.InternalServerError)
 	}
 
 	return nil

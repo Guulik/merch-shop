@@ -4,9 +4,9 @@ import (
 	"context"
 	"errors"
 	"github.com/jackc/pgx/v4"
-	"github.com/labstack/echo/v4"
 	"merch/internal/domain/consts"
 	"merch/internal/lib/logger"
+	"merch/internal/lib/wrapper"
 	"net/http"
 )
 
@@ -25,19 +25,30 @@ type CoinTransfer interface {
 	) error
 }
 
-func (s *Service) SendCoins(ctx context.Context, fromUserId int, toUserId int, coinAmount int) error {
+func (s *Service) SendCoins(ctx context.Context, fromUserId int, toUsername string, coinAmount int) error {
 
 	var (
+		toUserId     int
 		currentCoins int
 		err          error
 	)
+	toUserId, err = s.authorizer.CheckUserByUsername(ctx, toUsername)
+	if err != nil {
+		if errors.Is(err, pgx.ErrNoRows) {
+			if err != nil {
+				return wrapper.WrapHTTPError(err, http.StatusBadRequest, consts.ToUserNotFound)
+			}
+		} else {
+			return wrapper.WrapHTTPError(err, http.StatusInternalServerError, consts.InternalServerError)
+		}
+	}
 
 	currentCoins, err = s.userProvider.GetCoins(ctx, fromUserId)
 	if err != nil {
 		if errors.Is(err, pgx.ErrNoRows) {
-			return echo.NewHTTPError(http.StatusBadRequest, consts.UserNotFound)
+			return wrapper.WrapHTTPError(err, http.StatusBadRequest, consts.UserNotFound)
 		}
-		return echo.NewHTTPError(http.StatusInternalServerError, consts.InternalServerError)
+		return wrapper.WrapHTTPError(err, http.StatusInternalServerError, consts.InternalServerError)
 	}
 	logger.WithLogCoinBalance(ctx, currentCoins)
 	if currentCoins < coinAmount {
@@ -48,9 +59,9 @@ func (s *Service) SendCoins(ctx context.Context, fromUserId int, toUserId int, c
 	err = s.coinTransfer.TransferCoins(ctx, fromUserId, toUserId, coinAmount)
 	if err != nil {
 		if errors.Is(err, pgx.ErrNoRows) {
-			return echo.NewHTTPError(http.StatusBadRequest, consts.UserNotFound)
+			return wrapper.WrapHTTPError(err, http.StatusBadRequest, consts.NotEnoughMoney)
 		}
-		return echo.NewHTTPError(http.StatusInternalServerError, consts.InternalServerError)
+		return wrapper.WrapHTTPError(err, http.StatusInternalServerError, consts.InternalServerError)
 	}
 
 	return nil

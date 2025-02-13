@@ -7,9 +7,9 @@ import (
 	"github.com/jackc/pgx/v4"
 	"log/slog"
 	"merch/internal/domain/consts"
-	"merch/internal/domain/model"
 	"merch/internal/lib/hasher"
 	"merch/internal/lib/logger"
+	"merch/internal/lib/secret"
 	"merch/internal/lib/wrapper"
 	"net/http"
 	"time"
@@ -19,7 +19,7 @@ type Authorizer interface {
 	CheckUserByUsername(
 		ctx context.Context,
 		username string,
-	) (*model.UserAuth, error)
+	) (int, error)
 	SaveUser(
 		ctx context.Context,
 		username string,
@@ -31,7 +31,7 @@ func (s *Service) Authorize(ctx context.Context, username string, password strin
 
 	var (
 		hashedPassword string
-		user           *model.UserAuth
+		userId         int
 		newUserId      int
 
 		token string
@@ -42,7 +42,7 @@ func (s *Service) Authorize(ctx context.Context, username string, password strin
 		return "", logger.WrapError(ctx, err)
 	}
 
-	user, err = s.authorizer.CheckUserByUsername(ctx, username)
+	userId, err = s.authorizer.CheckUserByUsername(ctx, username)
 	if err != nil {
 		if errors.Is(err, pgx.ErrNoRows) {
 			slog.Debug("new user")
@@ -60,11 +60,11 @@ func (s *Service) Authorize(ctx context.Context, username string, password strin
 		return token, nil
 	}
 
-	if err = hasher.ComparePassword(hashedPassword, user.Password); err != nil {
+	if err = hasher.ComparePassword(hashedPassword, password); err != nil {
 		return "", wrapper.WrapHTTPError(err, http.StatusUnauthorized, consts.WrongPassword)
 	}
 
-	token, err = s.generateJWT(user.Id)
+	token, err = s.generateJWT(userId)
 	if err != nil {
 		return "", logger.WrapError(ctx, err)
 	}
@@ -80,7 +80,7 @@ func (s *Service) generateJWT(userID int) (string, error) {
 	//TODO: choose signing method
 	token := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
 
-	key, err := fetchSecretKey()
+	key, err := secret.FetchSecretKey()
 	if err != nil {
 		return "", err
 	}
@@ -91,9 +91,4 @@ func (s *Service) generateJWT(userID int) (string, error) {
 	}
 
 	return t, nil
-}
-
-func fetchSecretKey() ([]byte, error) {
-	//TODO: implement me!
-	return []byte("kkkk"), nil
 }
