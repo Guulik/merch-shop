@@ -5,8 +5,6 @@ import (
 )
 
 type Api struct {
-	//log
-
 	service *service.Service
 }
 

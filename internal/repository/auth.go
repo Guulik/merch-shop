@@ -3,9 +3,11 @@ package repository
 import (
 	"context"
 	"merch/internal/domain/model"
+	"merch/internal/lib/logger"
 )
 
 func (r *Repo) CheckUserByUsername(ctx context.Context, username string) (*model.UserAuth, error) {
+	//TODO: wrap sql with squirrel
 	var (
 		query = `
 		SELECT id
@@ -17,8 +19,7 @@ func (r *Repo) CheckUserByUsername(ctx context.Context, username string) (*model
 	)
 	err := r.dbPool.Get(user, query, values...)
 	if err != nil {
-		//TODO: log error
-		return nil, err
+		return nil, logger.WrapError(ctx, err)
 	}
 	return user, nil
 }
@@ -37,7 +38,7 @@ func (r *Repo) SaveUser(ctx context.Context, username string, password string) (
 	)
 	err := r.dbPool.QueryRow(query, values...).Scan(&userId)
 	if err != nil {
-		return 0, err
+		return 0, logger.WrapError(ctx, err)
 	}
 
 	return userId, nil

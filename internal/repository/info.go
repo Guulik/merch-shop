@@ -3,9 +3,11 @@ package repository
 import (
 	"context"
 	"merch/internal/domain/model"
+	"merch/internal/lib/logger"
 )
 
 func (r *Repo) GetCoins(ctx context.Context, userId int) (int, error) {
+	//TODO: wrap sql with squirrel
 	var (
 		query = `
     SELECT coins
@@ -19,14 +21,14 @@ func (r *Repo) GetCoins(ctx context.Context, userId int) (int, error) {
 
 	err := r.dbPool.Get(&coins, query, values...)
 	if err != nil {
-		//TODO: handle error
+		return -1, logger.WrapError(ctx, err)
 	}
 
 	return coins, nil
 }
 
 func (r *Repo) GetCoinsAndInventory(ctx context.Context, userId int) (*int, map[string]int, error) {
-
+	//TODO: wrap sql with squirrel
 	var (
 		query = `
     SELECT u.coins as coins, i.item, i.quantity
@@ -42,7 +44,7 @@ func (r *Repo) GetCoinsAndInventory(ctx context.Context, userId int) (*int, map[
 
 	rows, err := r.dbPool.Query(query, values...)
 	if err != nil {
-		//TODO: handle error
+		return nil, nil, logger.WrapError(ctx, err)
 	}
 	defer rows.Close()
 
@@ -51,7 +53,7 @@ func (r *Repo) GetCoinsAndInventory(ctx context.Context, userId int) (*int, map[
 		var quantity int
 
 		if err = rows.Scan(&coins, &item, &quantity); err != nil {
-			//TODO: handle error
+			return nil, nil, logger.WrapError(ctx, err)
 		}
 
 		if quantity != 0 {
@@ -63,7 +65,7 @@ func (r *Repo) GetCoinsAndInventory(ctx context.Context, userId int) (*int, map[
 }
 
 func (r *Repo) GetCoinHistory(ctx context.Context, userId int) (model.CoinHistory, error) {
-
+	//TODO: wrap sql with squirrel
 	var (
 		query = `
 	SELECT 
@@ -88,7 +90,7 @@ func (r *Repo) GetCoinHistory(ctx context.Context, userId int) (model.CoinHistor
 	)
 	err := r.dbPool.Get(&transactions, query, values...)
 	if err != nil {
-		//TODO: handle error
+		return model.CoinHistory{}, logger.WrapError(ctx, err)
 	}
 	for _, t := range transactions {
 		if t.ToUserId == userId {

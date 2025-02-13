@@ -2,6 +2,8 @@ package api
 
 import (
 	"github.com/labstack/echo/v4"
+	"log/slog"
+	"merch/internal/lib/logger"
 	"net/http"
 )
 
@@ -15,7 +17,6 @@ type AuthResponse struct {
 }
 
 func (a *Api) AuthHandler(e echo.Context) error {
-	const op = "Api.AuthHandler"
 	ctx := e.Request().Context()
 
 	var (
@@ -30,6 +31,7 @@ func (a *Api) AuthHandler(e echo.Context) error {
 
 	token, err = a.service.Authorize(ctx, req.Username, req.Password)
 	if err != nil {
+		slog.ErrorContext(logger.ErrorCtx(ctx, err), "Error:"+err.Error())
 		//TODO: return wrapped error
 	}
 

@@ -3,7 +3,6 @@ package service
 import "merch/configure"
 
 type Service struct {
-	//log
 	cfg          *configure.Config
 	coinTransfer CoinTransfer
 	userProvider UserProvider

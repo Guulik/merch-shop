@@ -8,6 +8,7 @@ import (
 	"github.com/labstack/echo/v4"
 	"merch/configure"
 	"merch/internal/api"
+	"merch/internal/lib/logger"
 	"merch/internal/middleware"
 	"merch/internal/repository"
 	"merch/internal/service"
@@ -27,6 +28,7 @@ func New() *App {
 	app := &App{}
 
 	app.cfg = configure.MustLoadConfig()
+	logger.InitLogger(app.cfg.Env)
 	app.echo = echo.New()
 	app.pool = configure.NewPostgres(app.cfg)
 

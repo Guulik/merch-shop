@@ -3,22 +3,21 @@ package repository
 import (
 	"context"
 	"database/sql"
+	"merch/internal/lib/logger"
 )
 
 func (r *Repo) TransferCoins(ctx context.Context, fromUserId int, toUserId int, coinAmount int) error {
-
+	//TODO: wrap sql with squirrel
 	var (
 		subtractQuery = `
 	UPDATE users 
 	SET coins = coins - $1
 	WHERE id = $2 AND coins >= $1
-	RETURNING coins
 `
 		addQuery = `
 	UPDATE users 
 	SET coins = coins + $1
 	WHERE id = $2
-	RETURNING coins
 `
 
 		insertTransactionQuery = `
@@ -31,10 +30,11 @@ func (r *Repo) TransferCoins(ctx context.Context, fromUserId int, toUserId int, 
 		transactionQueryValues = []any{fromUserId, toUserId, coinAmount}
 	)
 
+	//TODO: think about isolation level
 	txOptions := sql.TxOptions{Isolation: sql.LevelSerializable}
 	tx, err := r.dbPool.BeginTx(ctx, &txOptions)
 	if err != nil {
-		return err
+		return logger.WrapError(ctx, err)
 	}
 
 	defer func() {
@@ -43,20 +43,33 @@ func (r *Repo) TransferCoins(ctx context.Context, fromUserId int, toUserId int, 
 		}
 	}()
 
-	_, err = tx.Exec(subtractQuery, subtractQueryValues...)
+	res, err := tx.Exec(subtractQuery, subtractQueryValues...)
 	if err != nil {
-		return err
+		return logger.WrapError(ctx, err)
+	}
+	if n, _ := res.RowsAffected(); n == 0 {
+		err = sql.ErrNoRows
+		return logger.WrapError(ctx, err)
 	}
 
-	_, err = tx.Exec(addQuery, addQueryValues...)
+	res, err = tx.Exec(addQuery, addQueryValues...)
 	if err != nil {
-		return err
+		return logger.WrapError(ctx, err)
+	}
+	if n, _ := res.RowsAffected(); n == 0 {
+		err = sql.ErrNoRows
+		return logger.WrapError(ctx, err)
 	}
 
 	_, err = tx.Exec(insertTransactionQuery, transactionQueryValues...)
 	if err != nil {
-		return err
+		return logger.WrapError(ctx, err)
 	}
 
-	return tx.Commit()
+	err = tx.Commit()
+	if err != nil {
+		return logger.WrapError(ctx, err)
+	}
+
+	return nil
 }

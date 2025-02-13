@@ -2,9 +2,12 @@ package repository
 
 import (
 	"context"
+	"database/sql"
+	"merch/internal/lib/logger"
 )
 
 func (r *Repo) PayForItem(ctx context.Context, userId int, item string, itemCost int) error {
+	//TODO: wrap sql with squirrel
 	var (
 		coinQuery = `
 		UPDATE users 
@@ -23,9 +26,10 @@ func (r *Repo) PayForItem(ctx context.Context, userId int, item string, itemCost
 		itemQueryValues = []any{userId, item, 1}
 	)
 
+	//TODO: replace to BeginTx. Provide context and choose iso level
 	tx, err := r.dbPool.Begin()
 	if err != nil {
-		return err
+		return logger.WrapError(ctx, err)
 	}
 	defer func() {
 		if err != nil {
@@ -33,17 +37,28 @@ func (r *Repo) PayForItem(ctx context.Context, userId int, item string, itemCost
 		}
 	}()
 
-	_, err = tx.Exec(coinQuery, coinQueryValues...)
+	res, err := tx.ExecContext(ctx, coinQuery, coinQueryValues...)
 	if err != nil {
-		//TODO: log error
-		return err
+		return logger.WrapError(ctx, err)
+	}
+	if n, _ := res.RowsAffected(); n == 0 {
+		err = sql.ErrNoRows
+		return logger.WrapError(ctx, err)
 	}
 
-	_, err = tx.Exec(itemQuery, itemQueryValues...)
+	res, err = tx.ExecContext(ctx, itemQuery, itemQueryValues...)
 	if err != nil {
-		//TODO: log error
-		return err
+		return logger.WrapError(ctx, err)
+	}
+	if n, _ := res.RowsAffected(); n == 0 {
+		err = sql.ErrNoRows
+		return logger.WrapError(ctx, err)
 	}
 
-	return tx.Commit()
+	err = tx.Commit()
+	if err != nil {
+		return logger.WrapError(ctx, err)
+	}
+
+	return nil
 }

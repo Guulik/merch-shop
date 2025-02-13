@@ -12,16 +12,3 @@ var Shop = map[string]int{
 	"wallet":     50,
 	"pink-hoody": 500,
 }
-
-var Items = []string{
-	"t-shirt",
-	"cup",
-	"book",
-	"pen",
-	"powerbank",
-	"hoody",
-	"umbrella",
-	"socks",
-	"wallet",
-	"pink-hoody",
-}

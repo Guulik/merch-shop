@@ -5,7 +5,6 @@ import (
 )
 
 type Repo struct {
-	//log
 	dbPool *sqlx.DB
 }
 

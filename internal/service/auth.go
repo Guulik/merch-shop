@@ -7,6 +7,7 @@ import (
 	"github.com/golang-jwt/jwt/v5"
 	"merch/internal/domain/model"
 	"merch/internal/lib/hasher"
+	"merch/internal/lib/logger"
 	"time"
 )
 
@@ -34,7 +35,7 @@ func (s *Service) Authorize(ctx context.Context, username string, password strin
 	)
 	hashedPassword, err = hasher.HashPassword(password)
 	if err != nil {
-		//TODO: log and return 500
+		return "", logger.WrapError(ctx, err)
 	}
 
 	user, err = s.authorizer.CheckUserByUsername(ctx, username)
@@ -49,7 +50,7 @@ func (s *Service) Authorize(ctx context.Context, username string, password strin
 		}
 		token, err = s.generateJWT(newUserId)
 		if err != nil {
-			//TODO: log and return 500
+			return "", logger.WrapError(ctx, err)
 		}
 		return token, nil
 	}
@@ -60,7 +61,7 @@ func (s *Service) Authorize(ctx context.Context, username string, password strin
 
 	token, err = s.generateJWT(user.Id)
 	if err != nil {
-		//TODO: log and return 500
+		return "", logger.WrapError(ctx, err)
 	}
 	return token, nil
 }

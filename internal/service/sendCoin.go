@@ -1,6 +1,12 @@
 package service
 
-import "context"
+import (
+	"context"
+	"database/sql"
+	"errors"
+	"merch/internal/domain/consts"
+	"merch/internal/lib/logger"
+)
 
 type CoinTransfer interface {
 	TransferCoins(
@@ -26,15 +32,23 @@ func (s *Service) SendCoins(ctx context.Context, fromUserId int, toUserId int, c
 
 	currentCoins, err = s.userProvider.GetCoins(ctx, fromUserId)
 	if err != nil {
-		//TODO: handle error
+		if errors.Is(err, sql.ErrNoRows) {
+			//TODO: return 400
+		}
+		//TODO: return 500
 	}
+	logger.WithLogCoinBalance(ctx, currentCoins)
 	if currentCoins < coinAmount {
-		//TODO: log and return 400 (consts.NotEnoughMoney)
+		err = errors.New(consts.NotEnoughMoney)
+		return logger.WrapError(ctx, err)
 	}
 
 	err = s.coinTransfer.TransferCoins(ctx, fromUserId, toUserId, coinAmount)
 	if err != nil {
-		//TODO: handle error
+		if errors.Is(err, sql.ErrNoRows) {
+			//TODO: return 400
+		}
+		//TODO: return 500
 	}
 
 	return nil
