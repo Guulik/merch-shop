@@ -5,6 +5,7 @@ import (
 	"errors"
 	"github.com/jackc/pgx/v4"
 	"merch/internal/domain/consts"
+	"merch/internal/domain/model"
 	"merch/internal/lib/logger"
 	"merch/internal/lib/wrapper"
 	"net/http"
@@ -28,11 +29,11 @@ type CoinTransfer interface {
 func (s *Service) SendCoins(ctx context.Context, fromUserId int, toUsername string, coinAmount int) error {
 
 	var (
-		toUserId     int
+		toUser       *model.UserAuth
 		currentCoins int
 		err          error
 	)
-	toUserId, err = s.authorizer.CheckUserByUsername(ctx, toUsername)
+	toUser, err = s.authorizer.CheckUserByUsername(ctx, toUsername)
 	if err != nil {
 		if errors.Is(err, pgx.ErrNoRows) {
 			if err != nil {
@@ -56,7 +57,7 @@ func (s *Service) SendCoins(ctx context.Context, fromUserId int, toUsername stri
 		return logger.WrapError(ctx, err)
 	}
 
-	err = s.coinTransfer.TransferCoins(ctx, fromUserId, toUserId, coinAmount)
+	err = s.coinTransfer.TransferCoins(ctx, fromUserId, toUser.Id, coinAmount)
 	if err != nil {
 		if errors.Is(err, pgx.ErrNoRows) {
 			return wrapper.WrapHTTPError(err, http.StatusBadRequest, consts.NotEnoughMoney)

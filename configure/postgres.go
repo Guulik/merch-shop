@@ -11,8 +11,8 @@ import (
 	"net/url"
 )
 
-func NewPostgres(ctx context.Context, cfg *Config) *pgxpool.Pool {
-	pool, err := pgxpool.Connect(ctx, cfg.connectionString())
+func NewPostgresPool(ctx context.Context, connectionString string) *pgxpool.Pool {
+	pool, err := pgxpool.Connect(ctx, connectionString)
 	if err != nil {
 		panic("no connection to database")
 	}
@@ -26,8 +26,8 @@ func (c *Config) MigrateUp(url ...string) error {
 	} else {
 		sourceURL = url[0]
 	}
-	slog.Info(c.connectionString())
-	m, err := migrate.New(sourceURL, c.connectionString())
+	slog.Info(c.ConnectionString())
+	m, err := migrate.New(sourceURL, c.ConnectionString())
 	if err != nil {
 		return err
 	}
@@ -38,7 +38,7 @@ func (c *Config) MigrateUp(url ...string) error {
 	return nil
 }
 
-func (c *Config) connectionString() string {
+func (c *Config) ConnectionString() string {
 	u := url.URL{
 		Scheme: "postgres",
 		User:   url.UserPassword(c.Postgres.User, c.Postgres.Password),

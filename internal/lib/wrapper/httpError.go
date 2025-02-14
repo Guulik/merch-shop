@@ -1,9 +1,9 @@
 package wrapper
 
 type HTTPError struct {
-	Err    error
-	Status int
-	Msg    string
+	InternalErr error
+	Status      int
+	Msg         string
 }
 
 func (e *HTTPError) Error() string {
@@ -11,5 +11,5 @@ func (e *HTTPError) Error() string {
 }
 
 func WrapHTTPError(err error, status int, msg string) *HTTPError {
-	return &HTTPError{Err: err, Status: status, Msg: msg}
+	return &HTTPError{InternalErr: err, Status: status, Msg: msg}
 }

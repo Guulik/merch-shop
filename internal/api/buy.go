@@ -9,6 +9,7 @@ import (
 	"merch/internal/lib/logger"
 	"merch/internal/lib/wrapper"
 	"net/http"
+	"strings"
 )
 
 type BuyRequest struct {
@@ -40,13 +41,17 @@ func (a *Api) BuyHandler(e echo.Context) error {
 
 	err = a.service.BuyItem(ctx, tokenUserId, req.Item)
 	if err != nil {
-		slog.ErrorContext(logger.ErrorCtx(ctx, err), "Error:"+err.Error())
 		var httpErr *wrapper.HTTPError
 		if errors.As(err, &httpErr) {
-			slog.ErrorContext(logger.ErrorCtx(ctx, httpErr.Err), "Error: "+httpErr.Err.Error())
+			// Не уверен. О сравнении надо ещё подумать
+			if strings.Contains(err.Error(), consts.InternalServerError) {
+				slog.ErrorContext(logger.ErrorCtx(ctx, httpErr.InternalErr), "Error: "+httpErr.InternalErr.Error())
+			} else {
+				slog.WarnContext(logger.ErrorCtx(ctx, httpErr.InternalErr), "Error: "+httpErr.InternalErr.Error())
+			}
 			return echo.NewHTTPError(httpErr.Status, httpErr.Msg)
 		}
-		slog.ErrorContext(logger.ErrorCtx(ctx, err), "Error: "+err.Error())
+		slog.WarnContext(logger.ErrorCtx(ctx, err), "Error: "+err.Error())
 	}
 
 	return e.NoContent(http.StatusOK)

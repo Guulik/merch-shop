@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 	"log/slog"
+	"merch/configure"
 	"merch/internal/app"
 	"os"
 	"os/signal"
@@ -12,11 +13,12 @@ import (
 
 func main() {
 	ctx := context.Background()
+	cfg := configure.MustLoadConfig()
 
-	a := app.New(ctx)
+	a := app.New(ctx, cfg)
 
 	go func() {
-		a.MustRun()
+		a.MustRun(cfg.Port)
 	}()
 
 	stop := make(chan os.Signal, 1)

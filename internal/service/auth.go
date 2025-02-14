@@ -5,8 +5,11 @@ import (
 	"errors"
 	"github.com/golang-jwt/jwt/v5"
 	"github.com/jackc/pgx/v4"
+	"github.com/labstack/echo/v4"
+	"golang.org/x/crypto/bcrypt"
 	"log/slog"
 	"merch/internal/domain/consts"
+	"merch/internal/domain/model"
 	"merch/internal/lib/hasher"
 	"merch/internal/lib/logger"
 	"merch/internal/lib/secret"
@@ -19,7 +22,7 @@ type Authorizer interface {
 	CheckUserByUsername(
 		ctx context.Context,
 		username string,
-	) (int, error)
+	) (*model.UserAuth, error)
 	SaveUser(
 		ctx context.Context,
 		username string,
@@ -30,22 +33,21 @@ type Authorizer interface {
 func (s *Service) Authorize(ctx context.Context, username string, password string) (string, error) {
 
 	var (
-		hashedPassword string
-		userId         int
-		newUserId      int
+		user      *model.UserAuth
+		newUserId int
 
 		token string
 		err   error
 	)
-	hashedPassword, err = hasher.HashPassword(password)
-	if err != nil {
-		return "", logger.WrapError(ctx, err)
-	}
 
-	userId, err = s.authorizer.CheckUserByUsername(ctx, username)
+	user, err = s.authorizer.CheckUserByUsername(ctx, username)
 	if err != nil {
 		if errors.Is(err, pgx.ErrNoRows) {
-			slog.Debug("new user")
+			hashedPassword, err := hasher.HashPassword(password)
+			if err != nil {
+				return "", logger.WrapError(ctx, err)
+			}
+			slog.Debug("new user", slog.String("hashed password", hashedPassword))
 			newUserId, err = s.authorizer.SaveUser(ctx, username, hashedPassword)
 			if err != nil {
 				return "", wrapper.WrapHTTPError(err, http.StatusInternalServerError, consts.InternalServerError)
@@ -53,31 +55,31 @@ func (s *Service) Authorize(ctx context.Context, username string, password strin
 		} else {
 			return "", wrapper.WrapHTTPError(err, http.StatusInternalServerError, consts.InternalServerError)
 		}
-		token, err = s.generateJWT(newUserId)
+		token, err = s.generateJWT(newUserId, s.tokenTTL)
 		if err != nil {
 			return "", logger.WrapError(ctx, err)
 		}
 		return token, nil
 	}
 
-	if err = hasher.ComparePassword(hashedPassword, password); err != nil {
-		return "", wrapper.WrapHTTPError(err, http.StatusUnauthorized, consts.WrongPassword)
+	slog.Debug("password from db: " + user.PasswordDb)
+	if err = bcrypt.CompareHashAndPassword([]byte(user.PasswordDb), []byte(password)); err != nil {
+		return "", echo.NewHTTPError(http.StatusUnauthorized, consts.WrongPassword)
 	}
 
-	token, err = s.generateJWT(userId)
+	token, err = s.generateJWT(user.Id, s.tokenTTL)
 	if err != nil {
 		return "", logger.WrapError(ctx, err)
 	}
 	return token, nil
 }
 
-func (s *Service) generateJWT(userID int) (string, error) {
+func (s *Service) generateJWT(userID int, TTL time.Duration) (string, error) {
 	claims := jwt.MapClaims{
 		"user_id": userID,
-		"exp":     time.Now().Add(s.cfg.TokenTTL).Unix(),
+		"exp":     time.Now().Add(TTL).Unix(),
 	}
 
-	//TODO: choose signing method
 	token := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
 
 	key, err := secret.FetchSecretKey()

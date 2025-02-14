@@ -1,22 +1,26 @@
 package service
 
-import "merch/configure"
+import "time"
 
 type Service struct {
-	cfg          *configure.Config
+	tokenTTL time.Duration
+	//cfg          *configure.Config
 	coinTransfer CoinTransfer
 	userProvider UserProvider
 	authorizer   Authorizer
 }
 
 func New(
-	cfg *configure.Config,
+	//прямая передача - это костыль
+	tokenTTL time.Duration,
+	//cfg *configure.Config,
 	sender CoinTransfer,
 	provider UserProvider,
 	authorizer Authorizer,
 ) *Service {
 	return &Service{
-		cfg:          cfg,
+		tokenTTL: tokenTTL,
+		//cfg:          cfg,
 		coinTransfer: sender,
 		userProvider: provider,
 		authorizer:   authorizer,

@@ -24,42 +24,47 @@ type App struct {
 	repo *repository.Repo
 	echo *echo.Echo
 	pool *pgxpool.Pool
-	cfg  *configure.Config
 }
 
-func New(ctx context.Context) *App {
+func New(ctx context.Context, cfg *configure.Config) *App {
 	app := &App{}
 
-	app.cfg = configure.MustLoadConfig()
-	logger.InitLogger(app.cfg.Env)
-	app.echo = echo.New()
-	app.pool = configure.NewPostgres(ctx, app.cfg)
+	logger.InitLogger(cfg.Env)
+
+	app.pool = configure.NewPostgresPool(ctx, cfg.ConnectionString())
 
 	app.repo = repository.New(app.pool)
-	app.svc = service.New(app.cfg, app.repo, app.repo, app.repo)
+	app.svc = service.New(cfg.TokenTTL, app.repo, app.repo, app.repo)
 	app.api = api.New(app.svc)
 
-	err := app.cfg.MigrateUp()
+	app.echo = SetupEcho(app.api)
+
+	err := cfg.MigrateUp()
 	if err != nil && !errors.Is(err, migrate.ErrNoChange) {
 		log.Fatal("failed to migrate: " + err.Error())
 	}
 
-	app.echo.POST("/api/auth", app.api.AuthHandler)
-
-	protected := app.echo.Group("/api")
-	protected.Use(middleware.AuthMiddleware)
-
-	protected.GET("/buy/:item", app.api.BuyHandler)
-	protected.POST("/sendCoin", app.api.SendCoinHandler)
-	protected.GET("/info", app.api.InfoHandler)
-
 	return app
 }
 
-func (a *App) Run() error {
+func SetupEcho(api *api.Api) *echo.Echo {
+	e := echo.New()
+	e.POST("/api/auth", api.AuthHandler)
+
+	protected := e.Group("/api")
+	protected.Use(middleware.AuthMiddleware)
+
+	protected.GET("/buy/:item", api.BuyHandler)
+	protected.POST("/sendCoin", api.SendCoinHandler)
+	protected.GET("/info", api.InfoHandler)
+
+	return e
+}
+
+func (a *App) Run(port int) error {
 	slog.Info("server running")
 
-	err := a.echo.Start(fmt.Sprintf(":%d", a.cfg.Port))
+	err := a.echo.Start(fmt.Sprintf(":%d", port))
 	if err != nil {
 		return err
 	}
@@ -67,8 +72,8 @@ func (a *App) Run() error {
 	return nil
 }
 
-func (a *App) MustRun() {
-	if err := a.Run(); err != nil && !errors.Is(err, http.ErrServerClosed) {
+func (a *App) MustRun(port int) {
+	if err := a.Run(port); err != nil && !errors.Is(err, http.ErrServerClosed) {
 		log.Fatal(err)
 	}
 }
