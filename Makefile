@@ -3,6 +3,15 @@ PHONY: lint
 lint:
 	golangci-lint run -c ./.golangci.yml
 
+start:
+	docker-compose up -d
+
+down:
+	docker-compose down
+
+stop:
+	docker-compose stop
+
 test:
 	go test ./...
 
