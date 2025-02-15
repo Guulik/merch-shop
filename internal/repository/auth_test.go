@@ -116,10 +116,10 @@ func TestRepo_SaveUser(t *testing.T) {
 			require.NoError(t, err)
 			defer mockDB.Close()
 
-			query := "INSERT INTO users \\(username, password_hash\\) VALUES \\(\\$1, \\$2\\) RETURNING id;"
+			query := "INSERT INTO users \\(username, password_hash, coins\\) VALUES \\(\\$1, \\$2, \\$3\\) RETURNING id;"
 
 			mockQuery := mockDB.ExpectQuery(query).
-				WithArgs(tt.username, tt.password)
+				WithArgs(tt.username, tt.password, 1000)
 
 			if tt.mockError != nil {
 				mockQuery.WillReturnError(tt.mockError)

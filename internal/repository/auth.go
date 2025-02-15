@@ -28,11 +28,11 @@ func (r *Repo) SaveUser(ctx context.Context, username string, password string) (
 
 	var (
 		query = `
-		INSERT INTO users (username, password_hash) 
-		VALUES ($1, $2) 
+		INSERT INTO users (username, password_hash, coins) 
+		VALUES ($1, $2, $3) 
 		RETURNING id;
 	`
-		values = []any{username, password}
+		values = []any{username, password, 1000}
 
 		userId int
 	)
