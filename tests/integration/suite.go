@@ -1,3 +1,5 @@
+//go:build integration
+
 package integration
 
 import (
@@ -27,10 +29,10 @@ func (s *Suite) SetupSuite() {
 	s.pgContainer = pgContainer
 	s.Require().NoError(err)
 
-	tokenTTL := time.Hour
+	cfg := &configure.Config{TokenTTL: time.Hour}
 	pool := configure.NewPostgresPool(ctx, pgContainer.ConnectionString())
 	repo := repository.New(pool)
-	svc := service.New(tokenTTL, repo, repo, repo)
+	svc := service.New(cfg, repo, repo, repo)
 	handlers := api.New(svc)
 
 	migrationsURL := "file://../../migrations/up"

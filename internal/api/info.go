@@ -20,7 +20,7 @@ func (a *Api) InfoHandler(e echo.Context) error {
 		err         error
 	)
 	tokenUserId = e.Get("user_id").(int)
-	logger.WithLogUserID(ctx, tokenUserId)
+	ctx = logger.WithLogUserID(ctx, tokenUserId)
 
 	userInfo, err = a.service.GetUserInfo(ctx, tokenUserId)
 	if err != nil {
@@ -35,6 +35,7 @@ func (a *Api) InfoHandler(e echo.Context) error {
 			return echo.NewHTTPError(httpErr.Status, httpErr.Msg)
 		}
 		slog.WarnContext(logger.ErrorCtx(ctx, err), "Error: "+err.Error())
+		return err
 	}
 
 	return e.JSON(http.StatusOK, userInfo)

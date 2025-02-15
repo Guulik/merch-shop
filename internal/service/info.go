@@ -50,7 +50,7 @@ func (s *Service) GetUserInfo(ctx context.Context, userId int) (*model.UserInfo,
 	if coinsPtr != nil {
 		coins = *coinsPtr
 	}
-	logger.WithLogCoinBalance(ctx, coins)
+	ctx = logger.WithLogCoinBalance(ctx, coins)
 
 	inventory = convertInventory(inventoryMap)
 

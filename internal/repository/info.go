@@ -67,7 +67,6 @@ func (r *Repo) GetCoinsAndInventory(ctx context.Context, userId int) (*int, map[
 }
 
 func (r *Repo) GetCoinHistory(ctx context.Context, userId int) (model.CoinHistory, error) {
-	//TODO: wrap sql with squirrel
 	var (
 		query = `
 	SELECT 

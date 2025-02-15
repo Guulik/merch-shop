@@ -5,7 +5,7 @@ import (
 	"github.com/labstack/echo/v4"
 	"log/slog"
 	"merch/internal/domain/consts"
-	"merch/internal/lib/secret"
+	"merch/internal/lib/jwtManager"
 	"net/http"
 	"strings"
 )
@@ -32,15 +32,13 @@ func AuthMiddleware(next echo.HandlerFunc) echo.HandlerFunc {
 		}
 		tokenString := parts[1]
 
-		secretKey, err := secret.FetchSecretKey()
+		secretKey, err := jwtManager.FetchSecretKey()
 		if err != nil {
-			slog.Error("failed to fetch secret key: ", err.Error())
+			slog.Error("failed to fetch jwtManager key: " + err.Error())
 			return echo.NewHTTPError(http.StatusInternalServerError, consts.InternalServerError)
 		}
 
-		token, err := jwt.Parse(tokenString, func(token *jwt.Token) (interface{}, error) {
-			return secretKey, nil
-		})
+		token, err := jwtManager.ParseToken(tokenString, secretKey)
 		if err != nil {
 			slog.Debug("invalid token", slog.String("token:", token.Raw))
 			return echo.NewHTTPError(http.StatusUnauthorized, InvalidToken)

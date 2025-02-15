@@ -3,7 +3,6 @@ package service
 import (
 	"context"
 	"errors"
-	"github.com/golang-jwt/jwt/v5"
 	"github.com/jackc/pgx/v4"
 	"github.com/labstack/echo/v4"
 	"golang.org/x/crypto/bcrypt"
@@ -11,11 +10,9 @@ import (
 	"merch/internal/domain/consts"
 	"merch/internal/domain/model"
 	"merch/internal/lib/hasher"
-	"merch/internal/lib/logger"
-	"merch/internal/lib/secret"
+	jwtManager "merch/internal/lib/jwtManager"
 	"merch/internal/lib/wrapper"
 	"net/http"
-	"time"
 )
 
 type Authorizer interface {
@@ -45,7 +42,7 @@ func (s *Service) Authorize(ctx context.Context, username string, password strin
 		if errors.Is(err, pgx.ErrNoRows) {
 			hashedPassword, err := hasher.HashPassword(password)
 			if err != nil {
-				return "", logger.WrapError(ctx, err)
+				return "", wrapper.WrapHTTPError(err, http.StatusInternalServerError, consts.InternalServerError)
 			}
 			slog.Debug("new user", slog.String("hashed password", hashedPassword))
 			newUserId, err = s.authorizer.SaveUser(ctx, username, hashedPassword)
@@ -55,9 +52,9 @@ func (s *Service) Authorize(ctx context.Context, username string, password strin
 		} else {
 			return "", wrapper.WrapHTTPError(err, http.StatusInternalServerError, consts.InternalServerError)
 		}
-		token, err = s.generateJWT(newUserId, s.tokenTTL)
+		token, err = jwtManager.GenerateJWT(newUserId, s.cfg.TokenTTL)
 		if err != nil {
-			return "", logger.WrapError(ctx, err)
+			return "", wrapper.WrapHTTPError(err, http.StatusInternalServerError, consts.InternalServerError)
 		}
 		return token, nil
 	}
@@ -67,30 +64,9 @@ func (s *Service) Authorize(ctx context.Context, username string, password strin
 		return "", echo.NewHTTPError(http.StatusUnauthorized, consts.WrongPassword)
 	}
 
-	token, err = s.generateJWT(user.Id, s.tokenTTL)
+	token, err = jwtManager.GenerateJWT(user.Id, s.cfg.TokenTTL)
 	if err != nil {
-		return "", logger.WrapError(ctx, err)
+		return "", wrapper.WrapHTTPError(err, http.StatusInternalServerError, consts.InternalServerError)
 	}
 	return token, nil
-}
-
-func (s *Service) generateJWT(userID int, TTL time.Duration) (string, error) {
-	claims := jwt.MapClaims{
-		"user_id": userID,
-		"exp":     time.Now().Add(TTL).Unix(),
-	}
-
-	token := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
-
-	key, err := secret.FetchSecretKey()
-	if err != nil {
-		return "", err
-	}
-
-	t, err := token.SignedString(key)
-	if err != nil {
-		return "", err
-	}
-
-	return t, nil
 }

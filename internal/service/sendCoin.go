@@ -51,17 +51,14 @@ func (s *Service) SendCoins(ctx context.Context, fromUserId int, toUsername stri
 		}
 		return wrapper.WrapHTTPError(err, http.StatusInternalServerError, consts.InternalServerError)
 	}
-	logger.WithLogCoinBalance(ctx, currentCoins)
+	ctx = logger.WithLogCoinBalance(ctx, currentCoins)
 	if currentCoins < coinAmount {
 		err = errors.New(consts.NotEnoughMoney)
-		return logger.WrapError(ctx, err)
+		return wrapper.WrapHTTPError(err, http.StatusBadRequest, consts.NotEnoughMoney)
 	}
 
 	err = s.coinTransfer.TransferCoins(ctx, fromUserId, toUser.Id, coinAmount)
 	if err != nil {
-		if errors.Is(err, pgx.ErrNoRows) {
-			return wrapper.WrapHTTPError(err, http.StatusBadRequest, consts.NotEnoughMoney)
-		}
 		return wrapper.WrapHTTPError(err, http.StatusInternalServerError, consts.InternalServerError)
 	}
 

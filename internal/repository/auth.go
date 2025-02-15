@@ -7,7 +7,6 @@ import (
 )
 
 func (r *Repo) CheckUserByUsername(ctx context.Context, username string) (*model.UserAuth, error) {
-	//TODO: wrap sql with squirrel
 	var (
 		query = `
 		SELECT id, username, password_hash
@@ -15,7 +14,7 @@ func (r *Repo) CheckUserByUsername(ctx context.Context, username string) (*model
 		WHERE username = $1;
 `
 		values = []any{username}
-		user   = &model.UserAuth{}
+		user   = &model.UserAuth{Id: -1}
 	)
 	err := r.dbPool.QueryRow(ctx, query, values...).Scan(&user.Id, &user.Username, &user.PasswordDb)
 

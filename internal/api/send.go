@@ -12,8 +12,8 @@ import (
 )
 
 type SendCoinRequest struct {
-	ToUsername string `json:"toUser"`
-	Amount     int    `json:"amount"`
+	ToUsername string `json:"toUser" validate:"required"`
+	Amount     int    `json:"amount" validate:"required,gt=0"`
 }
 
 func (a *Api) SendCoinHandler(e echo.Context) error {
@@ -24,14 +24,19 @@ func (a *Api) SendCoinHandler(e echo.Context) error {
 		err         error
 	)
 	tokenUserId = e.Get("user_id").(int)
-	logger.WithLogUserID(ctx, tokenUserId)
+	ctx = logger.WithLogUserID(ctx, tokenUserId)
 
 	if err = e.Bind(&req); err != nil {
 		// always returns wrapped 400
 		return err
 	}
-	logger.WithLogToUser(ctx, req.ToUsername)
-	logger.WithLogSendAmount(ctx, req.Amount)
+	err = validate(req)
+	if err != nil {
+		return echo.NewHTTPError(http.StatusBadRequest, err.Error())
+	}
+
+	ctx = logger.WithLogToUser(ctx, req.ToUsername)
+	ctx = logger.WithLogSendAmount(ctx, req.Amount)
 
 	err = a.service.SendCoins(ctx, tokenUserId, req.ToUsername, req.Amount)
 	if err != nil {
@@ -46,6 +51,7 @@ func (a *Api) SendCoinHandler(e echo.Context) error {
 			return echo.NewHTTPError(httpErr.Status, httpErr.Msg)
 		}
 		slog.WarnContext(logger.ErrorCtx(ctx, err), "Error: "+err.Error())
+		return err
 	}
 
 	return e.NoContent(http.StatusOK)

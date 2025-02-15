@@ -28,7 +28,8 @@ func (s *Service) BuyItem(ctx context.Context, userId int, item string) error {
 		}
 		return wrapper.WrapHTTPError(err, http.StatusInternalServerError, consts.InternalServerError)
 	}
-	logger.WithLogCoinBalance(ctx, currentCoins)
+
+	ctx = logger.WithLogCoinBalance(ctx, currentCoins)
 	if currentCoins < itemCost {
 		err = errors.New(consts.NotEnoughMoney)
 		return logger.WrapError(ctx, err)

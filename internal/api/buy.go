@@ -13,7 +13,7 @@ import (
 )
 
 type BuyRequest struct {
-	Item string `param:"item"`
+	Item string `param:"item" validate:"required"`
 }
 
 func (a *Api) BuyHandler(e echo.Context) error {
@@ -25,19 +25,23 @@ func (a *Api) BuyHandler(e echo.Context) error {
 		err         error
 	)
 	tokenUserId = e.Get("user_id").(int)
-	logger.WithLogUserID(ctx, tokenUserId)
+	ctx = logger.WithLogUserID(ctx, tokenUserId)
 
 	if err = e.Bind(&req); err != nil {
 		// always returns wrapped 400
 		return err
 	}
 	slog.Debug("item: " + req.Item)
+	err = validate(req)
+	if err != nil {
+		return echo.NewHTTPError(http.StatusBadRequest, err.Error())
+	}
 
 	err = validateItem(req.Item)
 	if err != nil {
 		return e.JSON(http.StatusBadRequest, err.Error())
 	}
-	logger.WithLogItem(ctx, req.Item)
+	ctx = logger.WithLogItem(ctx, req.Item)
 
 	err = a.service.BuyItem(ctx, tokenUserId, req.Item)
 	if err != nil {
@@ -52,6 +56,7 @@ func (a *Api) BuyHandler(e echo.Context) error {
 			return echo.NewHTTPError(httpErr.Status, httpErr.Msg)
 		}
 		slog.WarnContext(logger.ErrorCtx(ctx, err), "Error: "+err.Error())
+		return err
 	}
 
 	return e.NoContent(http.StatusOK)

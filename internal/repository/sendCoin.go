@@ -8,7 +8,7 @@ import (
 )
 
 func (r *Repo) TransferCoins(ctx context.Context, fromUserId int, toUserId int, coinAmount int) error {
-	//TODO: wrap sql with squirrel
+
 	var (
 		subtractQuery = `
 	UPDATE users 

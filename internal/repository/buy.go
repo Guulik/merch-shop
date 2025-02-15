@@ -8,7 +8,6 @@ import (
 )
 
 func (r *Repo) PayForItem(ctx context.Context, userId int, item string, itemCost int) error {
-	//TODO: wrap sql with squirrel
 	var (
 		coinQuery = `
 		UPDATE users 

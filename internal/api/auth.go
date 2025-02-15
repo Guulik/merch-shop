@@ -12,8 +12,8 @@ import (
 )
 
 type AuthRequest struct {
-	Username string `json:"username"`
-	Password string `json:"password"`
+	Username string `json:"username" validate:"required"`
+	Password string `json:"password" validate:"required"`
 }
 
 type AuthResponse struct {
@@ -32,7 +32,11 @@ func (a *Api) AuthHandler(e echo.Context) error {
 		// always returns 400
 		return err
 	}
-	logger.WithLogUsername(ctx, req.Username)
+	ctx = logger.WithLogUsername(ctx, req.Username)
+	err = validate(req)
+	if err != nil {
+		return echo.NewHTTPError(http.StatusBadRequest, err.Error())
+	}
 
 	slog.Debug("api authorize")
 	token, err = a.service.Authorize(ctx, req.Username, req.Password)

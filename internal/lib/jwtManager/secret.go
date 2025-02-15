@@ -1,4 +1,4 @@
-package secret
+package jwtManager
 
 func FetchSecretKey() ([]byte, error) {
 	//TODO: implement me!

@@ -34,7 +34,7 @@ func New(ctx context.Context, cfg *configure.Config) *App {
 	app.pool = configure.NewPostgresPool(ctx, cfg.ConnectionString())
 
 	app.repo = repository.New(app.pool)
-	app.svc = service.New(cfg.TokenTTL, app.repo, app.repo, app.repo)
+	app.svc = service.New(cfg, app.repo, app.repo, app.repo)
 	app.api = api.New(app.svc)
 
 	app.echo = SetupEcho(app.api)
