@@ -1,6 +1,7 @@
 package api
 
 import (
+	"context"
 	"errors"
 	"github.com/labstack/echo/v4"
 	"log/slog"
@@ -12,6 +13,10 @@ import (
 	"strings"
 )
 
+type InfoProvider interface {
+	GetUserInfo(ctx context.Context, userId int) (*model.UserInfo, error)
+}
+
 func (a *Api) InfoHandler(e echo.Context) error {
 	ctx := e.Request().Context()
 	var (
@@ -22,7 +27,7 @@ func (a *Api) InfoHandler(e echo.Context) error {
 	tokenUserId = e.Get("user_id").(int)
 	ctx = logger.WithLogUserID(ctx, tokenUserId)
 
-	userInfo, err = a.service.GetUserInfo(ctx, tokenUserId)
+	userInfo, err = a.infoProvider.GetUserInfo(ctx, tokenUserId)
 	if err != nil {
 		var httpErr *wrapper.HTTPError
 		if errors.As(err, &httpErr) {

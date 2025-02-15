@@ -1,6 +1,7 @@
 package api
 
 import (
+	"context"
 	"errors"
 	"github.com/labstack/echo/v4"
 	"log/slog"
@@ -18,6 +19,10 @@ type AuthRequest struct {
 
 type AuthResponse struct {
 	Token string `json:"token"`
+}
+
+type AuthorizerService interface {
+	Authorize(ctx context.Context, username string, password string) (string, error)
 }
 
 func (a *Api) AuthHandler(e echo.Context) error {
@@ -39,7 +44,7 @@ func (a *Api) AuthHandler(e echo.Context) error {
 	}
 
 	slog.Debug("api authorize")
-	token, err = a.service.Authorize(ctx, req.Username, req.Password)
+	token, err = a.authorizer.Authorize(ctx, req.Username, req.Password)
 	if err != nil {
 		var httpErr *wrapper.HTTPError
 		if errors.As(err, &httpErr) {

@@ -51,5 +51,5 @@ func fetchConfigPath() string {
 	}
 
 	//default local config
-	return "./configure/local.yaml"
+	return "./internal/configure/local.yaml"
 }

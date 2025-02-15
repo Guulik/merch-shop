@@ -7,7 +7,7 @@ import (
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
 	"github.com/stretchr/testify/require"
-	"merch/configure"
+	"merch/internal/configure"
 	"merch/internal/domain/consts"
 	"merch/internal/domain/model"
 	"merch/internal/repository/mocks"

@@ -1,7 +1,7 @@
 package service
 
 import (
-	"merch/configure"
+	"merch/internal/configure"
 )
 
 type Service struct {

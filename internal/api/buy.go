@@ -1,6 +1,7 @@
 package api
 
 import (
+	"context"
 	"errors"
 	"github.com/labstack/echo/v4"
 	"log/slog"
@@ -14,6 +15,10 @@ import (
 
 type BuyRequest struct {
 	Item string `param:"item" validate:"required"`
+}
+
+type Buyer interface {
+	BuyItem(ctx context.Context, userId int, item string) error
 }
 
 func (a *Api) BuyHandler(e echo.Context) error {
@@ -39,11 +44,11 @@ func (a *Api) BuyHandler(e echo.Context) error {
 
 	err = validateItem(req.Item)
 	if err != nil {
-		return e.JSON(http.StatusBadRequest, err.Error())
+		return echo.NewHTTPError(http.StatusBadRequest, consts.WrongItem)
 	}
 	ctx = logger.WithLogItem(ctx, req.Item)
 
-	err = a.service.BuyItem(ctx, tokenUserId, req.Item)
+	err = a.buyer.BuyItem(ctx, tokenUserId, req.Item)
 	if err != nil {
 		var httpErr *wrapper.HTTPError
 		if errors.As(err, &httpErr) {

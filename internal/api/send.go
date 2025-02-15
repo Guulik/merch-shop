@@ -1,6 +1,7 @@
 package api
 
 import (
+	"context"
 	"errors"
 	"github.com/labstack/echo/v4"
 	"log/slog"
@@ -14,6 +15,10 @@ import (
 type SendCoinRequest struct {
 	ToUsername string `json:"toUser" validate:"required"`
 	Amount     int    `json:"amount" validate:"required,gt=0"`
+}
+
+type CoinSender interface {
+	SendCoins(ctx context.Context, fromUserId int, toUsername string, coinAmount int) error
 }
 
 func (a *Api) SendCoinHandler(e echo.Context) error {
@@ -38,7 +43,7 @@ func (a *Api) SendCoinHandler(e echo.Context) error {
 	ctx = logger.WithLogToUser(ctx, req.ToUsername)
 	ctx = logger.WithLogSendAmount(ctx, req.Amount)
 
-	err = a.service.SendCoins(ctx, tokenUserId, req.ToUsername, req.Amount)
+	err = a.coinSender.SendCoins(ctx, tokenUserId, req.ToUsername, req.Amount)
 	if err != nil {
 		var httpErr *wrapper.HTTPError
 		if errors.As(err, &httpErr) {

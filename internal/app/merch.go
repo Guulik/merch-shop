@@ -9,8 +9,8 @@ import (
 	"github.com/labstack/echo/v4"
 	"log"
 	"log/slog"
-	"merch/configure"
 	"merch/internal/api"
+	configure2 "merch/internal/configure"
 	"merch/internal/lib/logger"
 	"merch/internal/middleware"
 	"merch/internal/repository"
@@ -26,16 +26,16 @@ type App struct {
 	pool *pgxpool.Pool
 }
 
-func New(ctx context.Context, cfg *configure.Config) *App {
+func New(ctx context.Context, cfg *configure2.Config) *App {
 	app := &App{}
 
 	logger.InitLogger(cfg.Env)
 
-	app.pool = configure.NewPostgresPool(ctx, cfg.ConnectionString())
+	app.pool = configure2.NewPostgresPool(ctx, cfg.ConnectionString())
 
 	app.repo = repository.New(app.pool)
 	app.svc = service.New(cfg, app.repo, app.repo, app.repo)
-	app.api = api.New(app.svc)
+	app.api = api.New(app.svc, app.svc, app.svc, app.svc)
 
 	app.echo = SetupEcho(app.api)
 

@@ -2,16 +2,26 @@ package api
 
 import (
 	"github.com/go-playground/validator/v10"
-	"merch/internal/service"
 )
 
 type Api struct {
-	service *service.Service
+	authorizer   AuthorizerService
+	buyer        Buyer
+	infoProvider InfoProvider
+	coinSender   CoinSender
 }
 
-func New(service *service.Service) *Api {
+func New(
+	authorizer AuthorizerService,
+	buyer Buyer,
+	infoProvider InfoProvider,
+	coinSender CoinSender,
+) *Api {
 	return &Api{
-		service: service,
+		authorizer:   authorizer,
+		buyer:        buyer,
+		infoProvider: infoProvider,
+		coinSender:   coinSender,
 	}
 }
 

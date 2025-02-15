@@ -6,9 +6,9 @@ import (
 	"context"
 	"github.com/golang-migrate/migrate/v4"
 	"github.com/stretchr/testify/suite"
-	"merch/configure"
 	"merch/internal/api"
 	"merch/internal/app"
+	configure2 "merch/internal/configure"
 	"merch/internal/repository"
 	"merch/internal/service"
 	"net/http/httptest"
@@ -29,11 +29,11 @@ func (s *Suite) SetupSuite() {
 	s.pgContainer = pgContainer
 	s.Require().NoError(err)
 
-	cfg := &configure.Config{TokenTTL: time.Hour}
-	pool := configure.NewPostgresPool(ctx, pgContainer.ConnectionString())
+	cfg := &configure2.Config{TokenTTL: time.Hour}
+	pool := configure2.NewPostgresPool(ctx, pgContainer.ConnectionString())
 	repo := repository.New(pool)
 	svc := service.New(cfg, repo, repo, repo)
-	handlers := api.New(svc)
+	handlers := api.New(svc, svc, svc, svc)
 
 	migrationsURL := "file://../../migrations/up"
 	m, err := migrate.New(migrationsURL, pgContainer.ConnectionString())

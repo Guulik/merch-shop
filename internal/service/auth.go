@@ -4,7 +4,6 @@ import (
 	"context"
 	"errors"
 	"github.com/jackc/pgx/v4"
-	"github.com/labstack/echo/v4"
 	"golang.org/x/crypto/bcrypt"
 	"log/slog"
 	"merch/internal/domain/consts"
@@ -61,7 +60,7 @@ func (s *Service) Authorize(ctx context.Context, username string, password strin
 
 	slog.Debug("password from db: " + user.PasswordDb)
 	if err = bcrypt.CompareHashAndPassword([]byte(user.PasswordDb), []byte(password)); err != nil {
-		return "", echo.NewHTTPError(http.StatusUnauthorized, consts.WrongPassword)
+		return "", wrapper.WrapHTTPError(err, http.StatusUnauthorized, consts.WrongPassword)
 	}
 
 	token, err = jwtManager.GenerateJWT(user.Id, s.cfg.TokenTTL)
