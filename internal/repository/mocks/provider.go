@@ -6,7 +6,6 @@ import (
 	"merch/internal/domain/model"
 )
 
-// Mock UserProvider
 type MockUserProvider struct {
 	mock.Mock
 }
@@ -16,20 +15,15 @@ func (m *MockUserProvider) GetCoins(ctx context.Context, userId int) (int, error
 	return args.Int(0), args.Error(1)
 }
 
-func (m *MockUserProvider) GetCoinsAndInventory(ctx context.Context, userId int) (*int, map[string]int, error) {
+func (m *MockUserProvider) GetInventory(ctx context.Context, userId int) (map[string]int, error) {
 	args := m.Called(ctx, userId)
 
-	var coins *int
-	if args.Get(0) != nil {
-		coins = args.Get(0).(*int)
-	}
-
 	var inventory map[string]int
-	if args.Get(1) != nil {
-		inventory = args.Get(1).(map[string]int)
+	if args.Get(0) != nil {
+		inventory = args.Get(0).(map[string]int)
 	}
 
-	return coins, inventory, args.Error(2)
+	return inventory, args.Error(1)
 }
 
 func (m *MockUserProvider) GetCoinHistory(ctx context.Context, userId int) (model.CoinHistory, error) {

@@ -44,7 +44,7 @@ func TestRepo_PayForItem(t *testing.T) {
 			require.NoError(t, err)
 			defer mockDB.Close()
 
-			mockDB.ExpectBeginTx(pgx.TxOptions{IsoLevel: pgx.Serializable})
+			mockDB.ExpectBeginTx(pgx.TxOptions{IsoLevel: pgx.ReadCommitted})
 
 			coinQuery := `^UPDATE users SET coins = coins - \$1 WHERE id = \$2 AND coins >= \$1 `
 			itemQuey := `^INSERT INTO inventory \(user_id, item, quantity\) VALUES \(\$1, \$2, \$3\)

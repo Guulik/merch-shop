@@ -68,7 +68,7 @@ func TestRepo_TransferCoins(t *testing.T) {
 			require.NoError(t, err)
 			defer mockDB.Close()
 
-			mockDB.ExpectBeginTx(pgx.TxOptions{IsoLevel: pgx.Serializable})
+			mockDB.ExpectBeginTx(pgx.TxOptions{IsoLevel: pgx.ReadCommitted})
 
 			subtractQuery := `^UPDATE users SET coins = coins - \$1 WHERE id = \$2 AND coins >= \$1`
 			addQuery := `^UPDATE users SET coins = coins \+ \$1 WHERE id = \$2`

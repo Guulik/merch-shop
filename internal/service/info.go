@@ -16,10 +16,10 @@ type UserProvider interface {
 		ctx context.Context,
 		userId int,
 	) (int, error)
-	GetCoinsAndInventory(
+	GetInventory(
 		ctx context.Context,
 		userId int,
-	) (*int, map[string]int, error)
+	) (map[string]int, error)
 	GetCoinHistory(
 		ctx context.Context,
 		userId int,
@@ -32,14 +32,13 @@ type UserProvider interface {
 func (s *Service) GetUserInfo(ctx context.Context, userId int) (*model.UserInfo, error) {
 	var (
 		coins        int
-		coinsPtr     *int
 		inventoryMap map[string]int
 		inventory    []model.Item
 		coinHistory  model.CoinHistory
 		err          error
 	)
 
-	coinsPtr, inventoryMap, err = s.userProvider.GetCoinsAndInventory(ctx, userId)
+	coins, err = s.userProvider.GetCoins(ctx, userId)
 	if err != nil {
 		if errors.Is(err, pgx.ErrNoRows) {
 			return &model.UserInfo{}, wrapper.WrapHTTPError(err, http.StatusBadRequest, consts.UserNotFound)
@@ -47,9 +46,14 @@ func (s *Service) GetUserInfo(ctx context.Context, userId int) (*model.UserInfo,
 		return &model.UserInfo{}, wrapper.WrapHTTPError(err, http.StatusInternalServerError, consts.InternalServerError)
 	}
 
-	if coinsPtr != nil {
-		coins = *coinsPtr
+	inventoryMap, err = s.userProvider.GetInventory(ctx, userId)
+	if err != nil {
+		if errors.Is(err, pgx.ErrNoRows) {
+			return &model.UserInfo{}, wrapper.WrapHTTPError(err, http.StatusBadRequest, consts.UserNotFound)
+		}
+		return &model.UserInfo{}, wrapper.WrapHTTPError(err, http.StatusInternalServerError, consts.InternalServerError)
 	}
+
 	ctx = logger.WithLogCoinBalance(ctx, coins)
 
 	inventory = convertInventory(inventoryMap)

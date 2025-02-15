@@ -27,7 +27,7 @@ func (r *Repo) PayForItem(ctx context.Context, userId int, item string, itemCost
 	)
 
 	//TODO: choose iso level
-	txOptions := pgx.TxOptions{IsoLevel: pgx.Serializable}
+	txOptions := pgx.TxOptions{IsoLevel: pgx.ReadCommitted}
 	tx, err := r.dbPool.BeginTx(ctx, txOptions)
 	if err != nil {
 		return logger.WrapError(ctx, err)

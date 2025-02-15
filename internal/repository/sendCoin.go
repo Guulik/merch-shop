@@ -32,7 +32,7 @@ func (r *Repo) TransferCoins(ctx context.Context, fromUserId int, toUserId int, 
 	)
 
 	//TODO: think about isolation level
-	txOptions := pgx.TxOptions{IsoLevel: pgx.Serializable}
+	txOptions := pgx.TxOptions{IsoLevel: pgx.ReadCommitted}
 	tx, err := r.dbPool.BeginTx(ctx, txOptions)
 	if err != nil {
 		return logger.WrapError(ctx, err)

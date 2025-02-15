@@ -82,31 +82,27 @@ func TestRepo_GetCoinsAndInventory(t *testing.T) {
 		userId    int
 		mockRows  *pgxmock.Rows
 		mockError error
-		wantCoins *int
 		wantInv   map[string]int
 		wantErr   bool
 	}{
 		{
-			name:      "success - user found with items",
-			userId:    1,
-			mockRows:  pgxmock.NewRows([]string{"coins", "item", "quantity"}).AddRow(100, "book", 3).AddRow(100, "pen", 5),
-			wantCoins: intPointer(100),
-			wantInv:   map[string]int{"book": 3, "pen": 5},
-			wantErr:   false,
+			name:     "success - user found with items",
+			userId:   1,
+			mockRows: pgxmock.NewRows([]string{"item", "quantity"}).AddRow("book", 3).AddRow("pen", 5),
+			wantInv:  map[string]int{"book": 3, "pen": 5},
+			wantErr:  false,
 		},
 		{
-			name:      "success - user found with no items",
-			userId:    2,
-			mockRows:  pgxmock.NewRows([]string{"coins", "item", "quantity"}).AddRow(200, "", 0),
-			wantCoins: intPointer(200),
-			wantInv:   map[string]int{},
-			wantErr:   false,
+			name:     "success - user found with no items",
+			userId:   2,
+			mockRows: pgxmock.NewRows([]string{"item", "quantity"}).AddRow("", 0),
+			wantInv:  map[string]int{},
+			wantErr:  false,
 		},
 		{
 			name:      "error - user not found",
 			userId:    3,
 			mockRows:  pgxmock.NewRows([]string{}),
-			wantCoins: nil,
 			wantInv:   nil,
 			mockError: pgx.ErrNoRows,
 			wantErr:   true,
@@ -115,7 +111,6 @@ func TestRepo_GetCoinsAndInventory(t *testing.T) {
 			name:      "error - database failure",
 			userId:    1,
 			mockError: errors.New("db connection error"),
-			wantCoins: nil,
 			wantInv:   nil,
 			wantErr:   true,
 		},
@@ -127,7 +122,7 @@ func TestRepo_GetCoinsAndInventory(t *testing.T) {
 			require.NoError(t, err)
 			defer mockDB.Close()
 
-			query := `^SELECT u.coins as coins, i.item, i.quantity FROM users u JOIN inventory i on u.id = i.user_id WHERE u.id = \$1`
+			query := `^SELECT item, quantity FROM inventory WHERE user_id = \$1`
 
 			if tt.mockError != nil {
 				mockDB.ExpectQuery(query).
@@ -140,26 +135,20 @@ func TestRepo_GetCoinsAndInventory(t *testing.T) {
 			}
 
 			repo := New(mockDB)
-			coins, inv, err := repo.GetCoinsAndInventory(ctx, tt.userId)
+			inv, err := repo.GetInventory(ctx, tt.userId)
 
 			if tt.wantErr {
 				require.Error(t, err)
 				require.ErrorIs(t, err, tt.mockError)
-				require.Equal(t, tt.wantCoins, coins)
 				require.Equal(t, tt.wantInv, inv)
 			} else {
 				require.NoError(t, err)
-				require.Equal(t, tt.wantCoins, coins)
 				require.Equal(t, tt.wantInv, inv)
 			}
 
 			require.NoError(t, mockDB.ExpectationsWereMet())
 		})
 	}
-}
-
-func intPointer(i int) *int {
-	return &i
 }
 
 func TestRepo_GetCoinHistory(t *testing.T) {

@@ -2,7 +2,6 @@ package repository
 
 import (
 	"context"
-	"log/slog"
 	"merch/internal/domain/model"
 	"merch/internal/lib/logger"
 )
@@ -27,23 +26,21 @@ func (r *Repo) GetCoins(ctx context.Context, userId int) (int, error) {
 	return coins, nil
 }
 
-func (r *Repo) GetCoinsAndInventory(ctx context.Context, userId int) (*int, map[string]int, error) {
+func (r *Repo) GetInventory(ctx context.Context, userId int) (map[string]int, error) {
 	var (
 		query = `
-    SELECT u.coins as coins, i.item, i.quantity
-    FROM users u
-    JOIN inventory i on u.id = i.user_id
-    WHERE u.id = $1
+    SELECT item, quantity
+    FROM inventory
+    WHERE user_id = $1
 `
 		values = []any{userId}
 
-		coins     int
 		inventory = make(map[string]int)
 	)
 
 	rows, err := r.dbPool.Query(ctx, query, values...)
 	if err != nil {
-		return nil, nil, logger.WrapError(ctx, err)
+		return nil, logger.WrapError(ctx, err)
 	}
 	defer rows.Close()
 
@@ -51,8 +48,8 @@ func (r *Repo) GetCoinsAndInventory(ctx context.Context, userId int) (*int, map[
 		var item string
 		var quantity int
 
-		if err = rows.Scan(&coins, &item, &quantity); err != nil {
-			return nil, nil, logger.WrapError(ctx, err)
+		if err = rows.Scan(&item, &quantity); err != nil {
+			return nil, logger.WrapError(ctx, err)
 		}
 
 		if quantity != 0 {
@@ -60,8 +57,7 @@ func (r *Repo) GetCoinsAndInventory(ctx context.Context, userId int) (*int, map[
 		}
 	}
 
-	slog.DebugContext(logger.ErrorCtx(ctx, err), "coins from db", slog.Any("CoinsPtr", coins))
-	return &coins, inventory, nil
+	return inventory, nil
 }
 
 func (r *Repo) GetCoinHistory(ctx context.Context, userId int) (model.CoinHistory, error) {

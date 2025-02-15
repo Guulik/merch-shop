@@ -20,7 +20,7 @@ func TestInfo(t *testing.T) {
 		userId int
 	}
 	type data struct {
-		coinsPtr    *int
+		coins       int
 		inventory   map[string]int
 		coinHistory model.CoinHistory
 	}
@@ -43,7 +43,7 @@ func TestInfo(t *testing.T) {
 				userId: 1,
 			},
 			data: data{
-				coinsPtr:  ptr(900),
+				coins:     950,
 				inventory: map[string]int{"book": 1},
 				coinHistory: model.CoinHistory{
 					Sent: []model.Sent{model.Sent{
@@ -56,7 +56,7 @@ func TestInfo(t *testing.T) {
 			errs:    callErrors{},
 			wantErr: assert.NoError,
 			wantUser: &model.UserInfo{
-				Coins: 900,
+				Coins: 950,
 				Inventory: []model.Item{model.Item{
 					Type:     "book",
 					Quantity: 1,
@@ -116,8 +116,11 @@ func TestInfo(t *testing.T) {
 			mockProvider := new(mocks.MockUserProvider)
 			mockTransfer := new(mocks.MockCoinTransfer)
 
-			mockProvider.On("GetCoinsAndInventory", mock.Anything, tt.req.userId).
-				Return(tt.data.coinsPtr, tt.data.inventory, tt.errs.providerError)
+			mockProvider.On("GetCoins", mock.Anything, tt.req.userId).
+				Return(tt.data.coins, tt.errs.providerError)
+
+			mockProvider.On("GetInventory", mock.Anything, tt.req.userId).
+				Return(tt.data.inventory, tt.errs.providerError)
 
 			mockProvider.On("GetCoinHistory", mock.Anything, tt.req.userId).
 				Return(tt.data.coinHistory, tt.errs.providerError)
@@ -135,8 +138,4 @@ func TestInfo(t *testing.T) {
 		})
 	}
 
-}
-
-func ptr(a int) *int {
-	return &a
 }
