@@ -8,7 +8,6 @@ import (
 )
 
 func (r *Repo) GetCoins(ctx context.Context, userId int) (int, error) {
-	//TODO: wrap sql with squirrel
 	var (
 		query = `
     SELECT coins
@@ -29,7 +28,6 @@ func (r *Repo) GetCoins(ctx context.Context, userId int) (int, error) {
 }
 
 func (r *Repo) GetCoinsAndInventory(ctx context.Context, userId int) (*int, map[string]int, error) {
-	//TODO: wrap sql with squirrel
 	var (
 		query = `
     SELECT u.coins as coins, i.item, i.quantity
