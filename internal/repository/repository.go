@@ -17,9 +17,8 @@ func New(pool PgxPooler) *Repo {
 	}
 }
 
-// PgxPooler - это интерфейс для генерации моков.
-// Этот интерфейс реализуется в pgxpool.Pool
-// По сути интерфейс "подогнан" под используемые методы из pgxpool.Pool.
+// PgxPooler — интерфейс для генерации моков.
+// Этот интерфейс реализуется в pgxpool.Pool, сути интерфейс "подогнан" под используемые методы из pgxpool.Pool.
 type PgxPooler interface {
 	Begin(context.Context) (pgx.Tx, error)
 	BeginTx(context.Context, pgx.TxOptions) (pgx.Tx, error)
