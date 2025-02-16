@@ -4,6 +4,7 @@ services:
     container_name: merch-shop
     environment:
       CONFIG_PATH: internal/configure/stage.yaml
+      JWT_SECRET: "lazzy2wice"
     volumes:
       - .internal/configure/stage.yaml:/internal/configure/stage.yaml
     ports:

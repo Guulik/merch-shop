@@ -1,0 +1,357 @@
+{
+	"info": {
+		"_postman_id": "cb718205-8b14-453c-9994-02230e87eaab",
+		"name": "merch",
+		"schema": "https://schema.getpostman.com/json/collection/v2.0.0/collection.json",
+		"_exporter_id": "34009943"
+	},
+	"item": [
+		{
+			"name": "performance local",
+			"item": [
+				{
+					"name": "info",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": {
+								"token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJleHAiOjE3Mzk3MDg4MjgsInVzZXJfaWQiOjh9.vVdSPMgZFui3b3OgLbhIVcrExQ2wbWwUpVgimjyomcA"
+							}
+						},
+						"method": "GET",
+						"header": [],
+						"url": "localhost:8080/api/info"
+					},
+					"response": []
+				},
+				{
+					"name": "info Copy",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": {
+								"token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJleHAiOjE3Mzk3MDg4MjgsInVzZXJfaWQiOjh9.vVdSPMgZFui3b3OgLbhIVcrExQ2wbWwUpVgimjyomcA"
+							}
+						},
+						"method": "GET",
+						"header": [],
+						"url": "localhost:8080/api/info"
+					},
+					"response": []
+				},
+				{
+					"name": "info 2",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": {
+								"token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJleHAiOjE3Mzk3OTE3ODQsInVzZXJfaWQiOjEwfQ.zCr31b3QA_wgWJ7hDeGjJtKMCoQY09zUZJt_2cFsxD4"
+							}
+						},
+						"method": "GET",
+						"header": [],
+						"url": "localhost:8080/api/info"
+					},
+					"response": []
+				},
+				{
+					"name": "info 2 Copy",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": {
+								"token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJleHAiOjE3Mzk3OTE3ODQsInVzZXJfaWQiOjEwfQ.zCr31b3QA_wgWJ7hDeGjJtKMCoQY09zUZJt_2cFsxD4"
+							}
+						},
+						"method": "GET",
+						"header": [],
+						"url": "localhost:8080/api/info"
+					},
+					"response": []
+				},
+				{
+					"name": "info 3",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": {
+								"token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJleHAiOjE3Mzk3OTE4MDgsInVzZXJfaWQiOjExfQ.RhO7sdtTns83OxeUSpanXmg4dVm-PFu4k9z2sMB2p74"
+							}
+						},
+						"method": "GET",
+						"header": [],
+						"url": "localhost:8080/api/info"
+					},
+					"response": []
+				},
+				{
+					"name": "info 3 Copy",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": {
+								"token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJleHAiOjE3Mzk3ODY2NjQsInVzZXJfaWQiOjExfQ.rgqzc9aj7Vpblq4sC0uNQvA-JiD4IEhQKBhR25Bi4xI"
+							}
+						},
+						"method": "GET",
+						"header": [],
+						"url": "localhost:8080/api/info"
+					},
+					"response": []
+				},
+				{
+					"name": "info 4",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": {
+								"token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJleHAiOjE3Mzk3OTE4MjcsInVzZXJfaWQiOjEyfQ.FTilu5_gdfydM4peEkoqSLReo3mjHdVdw6un9Xyp-gI"
+							}
+						},
+						"method": "GET",
+						"header": [],
+						"url": "localhost:8080/api/info"
+					},
+					"response": []
+				},
+				{
+					"name": "info 4 Copy",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": {
+								"token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJleHAiOjE3Mzk3ODY2NzcsInVzZXJfaWQiOjEyfQ.dCaEOwE6NaMCHW06Ydaql7ZYB3KXGg183_GiWfXHRlU"
+							}
+						},
+						"method": "GET",
+						"header": [],
+						"url": "localhost:8080/api/info"
+					},
+					"response": []
+				},
+				{
+					"name": "info 5",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": {
+								"token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJleHAiOjE3Mzk3OTE4NTksInVzZXJfaWQiOjEzfQ.z4tGicPDi4RGzhYi5TVzhpys_p1WMzVnRrZ99ozB-T4"
+							}
+						},
+						"method": "GET",
+						"header": [],
+						"url": "localhost:8080/api/info"
+					},
+					"response": []
+				},
+				{
+					"name": "info 5 Copy",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": {
+								"token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJleHAiOjE3Mzk3ODY5OTIsInVzZXJfaWQiOjEzfQ.B2DPVR6lDF5cHy6-OgPQdqluiv1FDt6Cz1W_dGbrUWk"
+							}
+						},
+						"method": "GET",
+						"header": [],
+						"url": "localhost:8080/api/info"
+					},
+					"response": []
+				},
+				{
+					"name": "send 1 to 2",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": {
+								"token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJleHAiOjE3Mzk3ODY0NDksInVzZXJfaWQiOjl9.xyEP0oY3tgn0tJoYmdBawPqgDZHAaYZvSEKENWUnixQ"
+							}
+						},
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n  \"toUser\": \"2\",\r\n  \"amount\": 100\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": "localhost:8080/api/sendCoin"
+					},
+					"response": []
+				},
+				{
+					"name": "send 2 to 3",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": {
+								"token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJleHAiOjE3Mzk3ODY3MDAsInVzZXJfaWQiOjEwfQ.jNN921VW95kViDAEwdjLrc5BIfhDNpiogG4mBe_-Rco"
+							}
+						},
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n  \"toUser\": \"3\",\r\n  \"amount\": 100\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": "localhost:8080/api/sendCoin"
+					},
+					"response": []
+				},
+				{
+					"name": "send 3 to 4",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": {
+								"token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJleHAiOjE3Mzk3ODY2NjQsInVzZXJfaWQiOjExfQ.rgqzc9aj7Vpblq4sC0uNQvA-JiD4IEhQKBhR25Bi4xI"
+							}
+						},
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n  \"toUser\": \"4\",\r\n  \"amount\": 100\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": "localhost:8080/api/sendCoin"
+					},
+					"response": []
+				},
+				{
+					"name": "send 4 to 5",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": {
+								"token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJleHAiOjE3Mzk3ODY2NzcsInVzZXJfaWQiOjEyfQ.dCaEOwE6NaMCHW06Ydaql7ZYB3KXGg183_GiWfXHRlU"
+							}
+						},
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n  \"toUser\": \"5\",\r\n  \"amount\": 100\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": "localhost:8080/api/sendCoin"
+					},
+					"response": []
+				},
+				{
+					"name": "send 5 to 1",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": {
+								"token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJleHAiOjE3Mzk3ODY5OTIsInVzZXJfaWQiOjEzfQ.B2DPVR6lDF5cHy6-OgPQdqluiv1FDt6Cz1W_dGbrUWk"
+							}
+						},
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n  \"toUser\": \"1\",\r\n  \"amount\": 100\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": "localhost:8080/api/sendCoin"
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "auth",
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n  \"username\": \"5\",\r\n  \"password\": \"5\"\r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": "localhost:8080/api/auth"
+			},
+			"response": []
+		},
+		{
+			"name": "info",
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": {
+						"token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJleHAiOjE3Mzk2OTgzMTYsInVzZXJfaWQiOjR9.rJS6KdLS5814DGDNeabO3MmuI1EFOhEkz8MmzyORrW4"
+					}
+				},
+				"method": "GET",
+				"header": [],
+				"url": "localhost:8080/api/info"
+			},
+			"response": []
+		},
+		{
+			"name": "buy",
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": {
+						"token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJleHAiOjE3Mzk3ODY2NjQsInVzZXJfaWQiOjExfQ.rgqzc9aj7Vpblq4sC0uNQvA-JiD4IEhQKBhR25Bi4xI"
+					}
+				},
+				"method": "GET",
+				"header": [],
+				"url": "localhost:8080/api/buy/book"
+			},
+			"response": []
+		},
+		{
+			"name": "send",
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": {
+						"token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJleHAiOjE3Mzk2OTgzMTYsInVzZXJfaWQiOjR9.rJS6KdLS5814DGDNeabO3MmuI1EFOhEkz8MmzyORrW4"
+					}
+				},
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n  \"toUser\": \"lubit\",\r\n  \"amount\": 300\r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": "localhost:8080/api/sendCoin"
+			},
+			"response": []
+		}
+	]
+}

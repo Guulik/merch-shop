@@ -10,7 +10,7 @@ import (
 type Config struct {
 	Env      string        `yaml:"env"`
 	Port     int           `yaml:"port"`
-	Timeout  time.Duration `yaml:"timeout"`
+	Retries  int           `yaml:"retries"`
 	TokenTTL time.Duration `yaml:"tokenTTL"`
 	Postgres Postgres
 }

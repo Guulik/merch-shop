@@ -1,8 +1,8 @@
 env: "local"
 
 port: 8080
-timeout: 1m
-tokenTTL: 1h
+retries: 3
+tokenTTL: 24h
 postgres:
   host: "localhost"
   SQLPort: 5432
