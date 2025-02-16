@@ -5,6 +5,7 @@ package integration
 import (
 	"context"
 	"net/http/httptest"
+	"os"
 	"time"
 
 	"github.com/golang-migrate/migrate/v4"
@@ -31,6 +32,17 @@ func (s *Suite) SetupSuite() {
 	s.pgContainer = pgContainer
 	s.Require().NoError(err)
 
+	originalValue, exists := os.LookupEnv("JWT_SECRET")
+	if !exists {
+		os.Setenv("JWT_SECRET", "lazzy2wice")
+	}
+	s.T().Cleanup(func() {
+		if exists {
+			os.Setenv("JWT_SECRET", originalValue)
+		} else {
+			os.Unsetenv("JWT_SECRET")
+		}
+	})
 	cfg := &configure.Config{TokenTTL: time.Hour}
 	pool := configure.NewPostgresPool(ctx, pgContainer.ConnectionString())
 	repo := repository.New(pool)

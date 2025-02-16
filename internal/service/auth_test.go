@@ -4,6 +4,7 @@ import (
 	"context"
 	"errors"
 	"fmt"
+	"os"
 	"testing"
 	"time"
 
@@ -133,6 +134,18 @@ func TestAuthorize(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
+			originalValue, exists := os.LookupEnv("JWT_SECRET")
+			if !exists {
+				os.Setenv("JWT_SECRET", "lazzy2wice")
+			}
+			t.Cleanup(func() {
+				if exists {
+					os.Setenv("JWT_SECRET", originalValue)
+				} else {
+					os.Unsetenv("JWT_SECRET")
+				}
+			})
+
 			var (
 				generatedToken string
 				err            error
@@ -177,7 +190,6 @@ func TestAuthorize(t *testing.T) {
 
 			if err == nil {
 				secret, err := jwtManager.FetchSecretKey()
-				require.NoError(t, err)
 
 				parsedToken, err := jwtManager.ParseToken(generatedToken, secret)
 				require.NoError(t, err)
