@@ -4,19 +4,21 @@ import (
 	"context"
 	"errors"
 	"fmt"
+	"testing"
+	"time"
+
 	"github.com/golang-jwt/jwt/v5"
 	"github.com/jackc/pgx/v4"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
 	"github.com/stretchr/testify/require"
+
 	"merch/internal/configure"
 	"merch/internal/domain/consts"
 	"merch/internal/domain/model"
-	"merch/internal/lib/hasher"
-	"merch/internal/lib/jwtManager"
 	"merch/internal/repository/mocks"
-	"testing"
-	"time"
+	"merch/internal/util/hasher"
+	"merch/internal/util/jwtManager"
 )
 
 func TestAuthorize(t *testing.T) {

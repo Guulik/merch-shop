@@ -3,15 +3,17 @@ package service
 import (
 	"context"
 	"errors"
+	"log/slog"
+	"net/http"
+
 	"github.com/jackc/pgx/v4"
 	"golang.org/x/crypto/bcrypt"
-	"log/slog"
+
 	"merch/internal/domain/consts"
 	"merch/internal/domain/model"
-	"merch/internal/lib/hasher"
-	jwtManager "merch/internal/lib/jwtManager"
-	"merch/internal/lib/wrapper"
-	"net/http"
+	"merch/internal/util/hasher"
+	"merch/internal/util/jwtManager"
+	"merch/internal/util/wrapper"
 )
 
 type Authorizer interface {

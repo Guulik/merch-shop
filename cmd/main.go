@@ -4,11 +4,12 @@ import (
 	"context"
 	"fmt"
 	"log/slog"
-	"merch/internal/app"
-	"merch/internal/configure"
 	"os"
 	"os/signal"
 	"syscall"
+
+	"merch/internal/app"
+	"merch/internal/configure"
 )
 
 func main() {

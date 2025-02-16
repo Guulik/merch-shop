@@ -2,10 +2,11 @@ package repository
 
 import (
 	"context"
+	"testing"
+
 	"github.com/jackc/pgx/v4"
 	"github.com/pashagolub/pgxmock"
 	"github.com/stretchr/testify/require"
-	"testing"
 )
 
 func TestRepo_PayForItem(t *testing.T) {

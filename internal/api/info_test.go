@@ -13,8 +13,8 @@ import (
 
 	"merch/internal/domain/consts"
 	"merch/internal/domain/model"
-	"merch/internal/lib/wrapper"
 	"merch/internal/service/mocksService"
+	"merch/internal/util/wrapper"
 )
 
 func TestInfoHandler(t *testing.T) {

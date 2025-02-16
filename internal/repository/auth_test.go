@@ -3,10 +3,12 @@ package repository
 import (
 	"context"
 	"errors"
+	"testing"
+
 	"github.com/pashagolub/pgxmock"
 	"github.com/stretchr/testify/require"
+
 	"merch/internal/domain/model"
-	"testing"
 )
 
 func TestRepo_CheckUserByUsername(t *testing.T) {

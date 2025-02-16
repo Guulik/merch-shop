@@ -1,8 +1,9 @@
 package jwtManager
 
 import (
-	"github.com/golang-jwt/jwt/v5"
 	"time"
+
+	"github.com/golang-jwt/jwt/v5"
 )
 
 func GenerateJWT(userID int, TTL time.Duration) (string, error) {

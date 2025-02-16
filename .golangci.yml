@@ -6,16 +6,15 @@ linters:
     - bidichk
     - bodyclose
     - containedctx
-    - govet
     - grouper
     - importas
     - ineffassign
     - interfacebloat
     - nakedret
-    - nestif
+    - godox
   disable:
     - funlen
-    - godox
+    - nestif
     - forcetypeassert
   presets:
     - bugs

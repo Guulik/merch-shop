@@ -2,8 +2,9 @@ package repository
 
 import (
 	"context"
+
 	"merch/internal/domain/model"
-	"merch/internal/lib/logger"
+	"merch/internal/util/logger"
 )
 
 func (r *Repo) GetCoins(ctx context.Context, userId int) (int, error) {

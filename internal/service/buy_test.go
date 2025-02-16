@@ -3,14 +3,16 @@ package service
 import (
 	"context"
 	"errors"
+	"testing"
+	"time"
+
 	"github.com/jackc/pgx/v4"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
+
 	"merch/internal/configure"
 	"merch/internal/domain/consts"
 	"merch/internal/repository/mocks"
-	"testing"
-	"time"
 )
 
 func TestBuy(t *testing.T) {

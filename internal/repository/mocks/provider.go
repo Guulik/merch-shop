@@ -2,7 +2,9 @@ package mocks
 
 import (
 	"context"
+
 	"github.com/stretchr/testify/mock"
+
 	"merch/internal/domain/model"
 )
 

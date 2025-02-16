@@ -4,18 +4,20 @@ import (
 	"context"
 	"errors"
 	"fmt"
+	"log"
+	"log/slog"
+	"net/http"
+
 	"github.com/golang-migrate/migrate/v4"
 	"github.com/jackc/pgx/v4/pgxpool"
 	"github.com/labstack/echo/v4"
-	"log"
-	"log/slog"
+
 	"merch/internal/api"
-	configure2 "merch/internal/configure"
-	"merch/internal/lib/logger"
+	"merch/internal/configure"
 	"merch/internal/middleware"
 	"merch/internal/repository"
 	"merch/internal/service"
-	"net/http"
+	"merch/internal/util/logger"
 )
 
 type App struct {
@@ -26,12 +28,12 @@ type App struct {
 	pool *pgxpool.Pool
 }
 
-func New(ctx context.Context, cfg *configure2.Config) *App {
+func New(ctx context.Context, cfg *configure.Config) *App {
 	app := &App{}
 
 	logger.InitLogger(cfg.Env)
 
-	app.pool = configure2.NewPostgresPool(ctx, cfg.ConnectionString())
+	app.pool = configure.NewPostgresPool(ctx, cfg.ConnectionString())
 
 	app.repo = repository.New(app.pool)
 	app.svc = service.New(cfg, app.repo, app.repo, app.repo)

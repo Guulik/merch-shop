@@ -3,16 +3,18 @@ package service
 import (
 	"context"
 	"errors"
+	"testing"
+	"time"
+
 	"github.com/jackc/pgx/v4"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
+
 	"merch/internal/configure"
 	"merch/internal/domain/consts"
 	"merch/internal/domain/model"
 	"merch/internal/repository/mocks"
-	"testing"
-	"time"
-) // Mock Authorizer
+)
 
 func TestSendCoins(t *testing.T) {
 	type request struct {

@@ -3,8 +3,10 @@ package repository
 import (
 	"context"
 	"database/sql"
+
 	"github.com/jackc/pgx/v4"
-	"merch/internal/lib/logger"
+
+	"merch/internal/util/logger"
 )
 
 func (r *Repo) PayForItem(ctx context.Context, userId int, item string, itemCost int) error {
@@ -26,7 +28,6 @@ func (r *Repo) PayForItem(ctx context.Context, userId int, item string, itemCost
 		itemQueryValues = []any{userId, item, 1}
 	)
 
-	//TODO: choose iso level
 	txOptions := pgx.TxOptions{IsoLevel: pgx.ReadCommitted}
 	tx, err := r.dbPool.BeginTx(ctx, txOptions)
 	if err != nil {

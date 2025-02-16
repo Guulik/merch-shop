@@ -3,12 +3,13 @@ package configure
 import (
 	"context"
 	"fmt"
+	"log/slog"
+	"net/url"
+
 	"github.com/golang-migrate/migrate/v4"
 	_ "github.com/golang-migrate/migrate/v4/database/postgres"
 	_ "github.com/golang-migrate/migrate/v4/source/file"
 	"github.com/jackc/pgx/v4/pgxpool"
-	"log/slog"
-	"net/url"
 )
 
 func NewPostgresPool(ctx context.Context, connectionString string) *pgxpool.Pool {

@@ -3,14 +3,16 @@ package api
 import (
 	"context"
 	"errors"
-	"github.com/labstack/echo/v4"
 	"log/slog"
-	"merch/internal/domain"
-	"merch/internal/domain/consts"
-	"merch/internal/lib/logger"
-	"merch/internal/lib/wrapper"
 	"net/http"
 	"strings"
+
+	"github.com/labstack/echo/v4"
+
+	"merch/internal/domain"
+	"merch/internal/domain/consts"
+	"merch/internal/util/logger"
+	"merch/internal/util/wrapper"
 )
 
 type BuyRequest struct {

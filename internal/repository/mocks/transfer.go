@@ -2,10 +2,10 @@ package mocks
 
 import (
 	"context"
+
 	"github.com/stretchr/testify/mock"
 )
 
-// Mock CoinTransfer
 type MockCoinTransfer struct {
 	mock.Mock
 }

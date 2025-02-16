@@ -3,10 +3,11 @@ package repository
 import (
 	"context"
 	"errors"
+	"testing"
+
 	"github.com/jackc/pgx/v4"
 	"github.com/pashagolub/pgxmock"
 	"github.com/stretchr/testify/require"
-	"testing"
 )
 
 func TestRepo_TransferCoins(t *testing.T) {

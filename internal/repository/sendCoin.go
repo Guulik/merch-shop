@@ -3,8 +3,10 @@ package repository
 import (
 	"context"
 	"database/sql"
+
 	"github.com/jackc/pgx/v4"
-	"merch/internal/lib/logger"
+
+	"merch/internal/util/logger"
 )
 
 func (r *Repo) TransferCoins(ctx context.Context, fromUserId int, toUserId int, coinAmount int) error {
@@ -31,7 +33,6 @@ func (r *Repo) TransferCoins(ctx context.Context, fromUserId int, toUserId int, 
 		transactionQueryValues = []any{fromUserId, toUserId, coinAmount}
 	)
 
-	//TODO: think about isolation level
 	txOptions := pgx.TxOptions{IsoLevel: pgx.ReadCommitted}
 	tx, err := r.dbPool.BeginTx(ctx, txOptions)
 	if err != nil {

@@ -3,16 +3,18 @@ package api
 import (
 	"errors"
 	"fmt"
-	"github.com/labstack/echo/v4"
-	"github.com/stretchr/testify/assert"
-	"github.com/stretchr/testify/mock"
-	"github.com/stretchr/testify/require"
-	"merch/internal/domain/consts"
-	"merch/internal/service/mocksService"
 	"net/http"
 	"net/http/httptest"
 	"strings"
 	"testing"
+
+	"github.com/labstack/echo/v4"
+	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/mock"
+	"github.com/stretchr/testify/require"
+
+	"merch/internal/domain/consts"
+	"merch/internal/service/mocksService"
 )
 
 func TestBuyHandler(t *testing.T) {

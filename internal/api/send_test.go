@@ -2,16 +2,18 @@ package api
 
 import (
 	"errors"
-	"github.com/labstack/echo/v4"
-	"github.com/stretchr/testify/assert"
-	"github.com/stretchr/testify/mock"
-	"github.com/stretchr/testify/require"
-	"merch/internal/domain/consts"
-	"merch/internal/service/mocksService"
 	"net/http"
 	"net/http/httptest"
 	"strings"
 	"testing"
+
+	"merch/internal/domain/consts"
+	"merch/internal/service/mocksService"
+
+	"github.com/labstack/echo/v4"
+	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/mock"
+	"github.com/stretchr/testify/require"
 )
 
 func TestSendCoinHandler(t *testing.T) {

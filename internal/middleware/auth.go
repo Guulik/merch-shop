@@ -1,13 +1,15 @@
 package middleware
 
 import (
-	"github.com/golang-jwt/jwt/v5"
-	"github.com/labstack/echo/v4"
 	"log/slog"
-	"merch/internal/domain/consts"
-	"merch/internal/lib/jwtManager"
 	"net/http"
 	"strings"
+
+	"github.com/golang-jwt/jwt/v5"
+	"github.com/labstack/echo/v4"
+
+	"merch/internal/domain/consts"
+	"merch/internal/util/jwtManager"
 )
 
 const (

@@ -3,12 +3,14 @@ package service
 import (
 	"context"
 	"errors"
+	"net/http"
+
 	"github.com/jackc/pgx/v4"
+
 	"merch/internal/domain"
 	"merch/internal/domain/consts"
-	"merch/internal/lib/logger"
-	"merch/internal/lib/wrapper"
-	"net/http"
+	"merch/internal/util/logger"
+	"merch/internal/util/wrapper"
 )
 
 func (s *Service) BuyItem(ctx context.Context, userId int, item string) error {

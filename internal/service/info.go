@@ -3,12 +3,14 @@ package service
 import (
 	"context"
 	"errors"
+	"net/http"
+
 	"github.com/jackc/pgx/v4"
+
 	"merch/internal/domain/consts"
 	"merch/internal/domain/model"
-	"merch/internal/lib/logger"
-	"merch/internal/lib/wrapper"
-	"net/http"
+	"merch/internal/util/logger"
+	"merch/internal/util/wrapper"
 )
 
 type UserProvider interface {
@@ -26,9 +28,6 @@ type UserProvider interface {
 	) (model.CoinHistory, error)
 }
 
-// GetUserInfo использует 2 запроса вместо 3.
-// В одном запросе получаем сразу и монетки и инвентарь, чтобы лишний раз не ходить в базу за монетками.
-// Во втором запросе все транзакции, относящиеся к данному пользователю, но разбитые на sent и received
 func (s *Service) GetUserInfo(ctx context.Context, userId int) (*model.UserInfo, error) {
 	var (
 		coins        int
